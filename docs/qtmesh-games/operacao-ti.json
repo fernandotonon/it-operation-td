@@ -1,0 +1,24 @@
+{
+  "id": "operacao-ti",
+  "name": "Operação TI: Defenda o Datacenter",
+  "tagline": "Tower defense de sexta-feira à tarde no datacenter.",
+  "description": "Lead the IT team and keep the datacenter online: place Patch Stations, Firewalls, Traffic Controllers, Security Scanners and Backup Stations beside the cable route, survive fifteen handcrafted waves of cartoon threats and the Friday Deployment boss. Built with Clayground and Qt Quick 3D; equipment and technicians generated from the Operação TI concept images in QtMeshEditor.",
+  "version": "0.1.0",
+  "developer": "Fernando Tonon",
+  "accent": "#2f7ff2",
+  "executable": {
+    "windows": "operacao-ti/operacao_ti.exe",
+    "linux": "operacao-ti/operacao_ti",
+    "macos": "operacao-ti/operacao_ti.app/Contents/MacOS/operacao_ti"
+  },
+  "cover": "games/operacao-ti/cover.svg",
+  "hero": "games/operacao-ti/hero.svg",
+  "screenshots": [],
+  "achievements": ["OT_FIRST_LAUNCH", "OT_FIRST_WIN", "OT_FLAWLESS"],
+  "stats": ["OT_MATCHES_PLAYED", "OT_WAVES_CLEARED", "OT_THREATS_RESOLVED"],
+  "allowMultipleInstances": false,
+  "links": {
+    "source": "https://github.com/fernandotonon/it-operation-td",
+    "editor": "https://github.com/fernandotonon/QtMeshEditor"
+  }
+}

@@ -1,0 +1,23 @@
+# Sibling types of the app directory. Needed for the singleton and when the same files are
+# served over HTTP to the Clayground Web Runtime (a directory import cannot be listed remotely).
+singleton Strings 1.0 Strings.qml
+TdGame 1.0 TdGame.qml
+Board3D 1.0 Board3D.qml
+PropVisual 1.0 PropVisual.qml
+EnemyVisual 1.0 EnemyVisual.qml
+TowerVisual 1.0 TowerVisual.qml
+ProjectileVisual 1.0 ProjectileVisual.qml
+FxBurst 1.0 FxBurst.qml
+Hud 1.0 Hud.qml
+BigButton 1.0 BigButton.qml
+Panel 1.0 Panel.qml
+TowerCard 1.0 TowerCard.qml
+EnemyIcon 1.0 EnemyIcon.qml
+TutorialCard 1.0 TutorialCard.qml
+TitleOverlay 1.0 TitleOverlay.qml
+EndOverlay 1.0 EndOverlay.qml
+PauseOverlay 1.0 PauseOverlay.qml
+SettingsPanel 1.0 SettingsPanel.qml
+SaveSystem 1.0 SaveSystem.qml
+AudioManager 1.0 AudioManager.qml
+CharacterPreview 1.0 CharacterPreview.qml

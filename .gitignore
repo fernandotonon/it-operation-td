@@ -1,0 +1,19 @@
+# build output
+build*/
+CMakeUserPresets.json
+.cache/
+.clay/
+compile_commands.json
+# macOS
+.DS_Store
+# QtMeshEditor generation sidecars, matted inputs and logs (regenerate with scripts/generate-models.sh)
+assets/qtmesh-projects/sources/
+assets/qtmesh-projects/logs/
+assets/qtmesh-projects/matted/
+assets/qtmesh-projects/flat/
+assets/exported-best/
+assets/qtmesh-projects/exported-fast/
+# local run logs and previews
+*.log
+/tmp/
+docs/screenshots/*.tmp.png

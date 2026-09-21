@@ -1,0 +1,4 @@
+[submodule "external/clayground"]
+	path = external/clayground
+	url = https://github.com/MisterGC/clayground.git
+	branch = web-runtime-3d-assets
