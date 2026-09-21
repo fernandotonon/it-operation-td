@@ -17,3 +17,4 @@ assets/qtmesh-projects/exported-fast/
 *.log
 /tmp/
 docs/screenshots/*.tmp.png
+deploy/
