@@ -1,1 +1,1 @@
-{"expectedBytes": 62861788, "bigFiles": 76, "packedFiles": 169, "packBytes": 422462, "app": {"operacao_ti.js": 366441, "qtloader.js": 12135, "operacao_ti.wasm": 41014649}}
+{"expectedBytes": 70885720, "bigFiles": 104, "packedFiles": 275, "packBytes": 691440, "app": {"operacao_ti.js": 366441, "qtloader.js": 12135, "operacao_ti.wasm": 41029705}}
