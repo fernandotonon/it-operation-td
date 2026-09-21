@@ -58,7 +58,8 @@
   <script>
     // ---- loading screen ------------------------------------------------------------------------------
     const LOADING = { expected: __EXPECTED_BYTES__, sprites: __SPRITES__, build: "__BUILD_ID__" };
-    const lang = (navigator.language || "en").toLowerCase();
+    // English by default (like the game itself); ?lang=pt or ?lang=de selects the other loading-screen texts
+    const lang = (new URLSearchParams(location.search).get("lang") || "en").toLowerCase();
     const pt = lang.startsWith("pt"), de = lang.startsWith("de");
     const T = pt ? {
         down: (p, a, b) => `Baixando o jogo… ${p}% (${a} de ${b} MB)`, prep: "Ligando o datacenter…", start: "Quase lá…",
