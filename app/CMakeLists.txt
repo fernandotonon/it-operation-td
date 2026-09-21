@@ -42,6 +42,7 @@ clay_app(operacao_ti
         Sandbox.qml
         CharacterPreview.qml
         AppBridges.qml
+        QmlModules.qml
         Strings.qml
         TdGame.qml
         Board3D.qml

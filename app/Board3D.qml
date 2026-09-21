@@ -63,7 +63,7 @@ Item {
         environment: SceneEnvironment {
             clearColor: "#0f1a2e"
             backgroundMode: SceneEnvironment.Color
-            antialiasingMode: SceneEnvironment.MSAA
+            antialiasingMode: board.reducedFx ? SceneEnvironment.NoAA : SceneEnvironment.MSAA
             antialiasingQuality: SceneEnvironment.Medium
         }
         PerspectiveCamera {
@@ -184,13 +184,18 @@ Item {
             Model { source: "#Cylinder"; y: 1; scale: Qt.vector3d(rangeRing.radius * 2, 0.01, rangeRing.radius * 2)
                     materials: PrincipledMaterial { baseColor: rangeRing.ttype && Towers.towers[rangeRing.ttype] ? Towers.towers[rangeRing.ttype].accent : "white"; opacity: 0.18; alphaMode: PrincipledMaterial.Blend; lighting: PrincipledMaterial.NoLighting }
                     castsShadows: false; receivesShadows: false }
-            Poly3D {
-                y: 2
-                vertices: { var v = []; for (var i = 0; i < 64; i++) v.push(Qt.vector2d(Math.cos(i / 64 * 6.2832) * rangeRing.r, Math.sin(i / 64 * 6.2832) * rangeRing.r)); return v }
-                holes: [ (function () { var v = []; for (var i = 0; i < 64; i++) v.push(Qt.vector2d(Math.cos(i / 64 * 6.2832) * (rangeRing.r - 6), Math.sin(i / 64 * 6.2832) * (rangeRing.r - 6))); return v })() ]
-                color: rangeRing.ttype && Towers.towers[rangeRing.ttype] ? Towers.towers[rangeRing.ttype].accent : "white"
-                surfaceOffset: 0.5
-                castsShadows: false
+            // ring outline from thin box segments (Poly3D with a hole ring stalls the WebAssembly build)
+            Repeater3D {
+                model: 48
+                delegate: Box3D {
+                    required property int index
+                    readonly property real a: index / 48 * 6.2832
+                    x: Math.cos(a) * (rangeRing.r - 3); z: Math.sin(a) * (rangeRing.r - 3); y: 2
+                    eulerRotation.y: -(a * 180 / Math.PI + 90)     // tangent to the circle
+                    width: rangeRing.r * 6.2832 / 48 + 2; height: 1.5; depth: 6
+                    color: rangeRing.ttype && Towers.towers[rangeRing.ttype] ? Towers.towers[rangeRing.ttype].accent : "white"
+                    lighting: 0; showEdges: false; castsShadows: false; receivesShadows: false
+                }
             }
         }
         // ---- reboot aim ring -------------------------------------------------------------------

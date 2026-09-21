@@ -14,11 +14,16 @@ Window {
 
     // Clayground convention: every clay_app is a headless ctest smoke test (QT_QPA_PLATFORM=minimal);
     // loading without warnings is the pass criterion, so quit right after the scene is up.
-    Component.onCompleted: if (Qt.platform.pluginName === "minimal") Qt.quit()
+    Component.onCompleted: { console.log("OperacaoTI: window ready", Qt.platform.pluginName); if (Qt.platform.pluginName === "minimal") Qt.quit() }
 
-    TdGame {
+    // --minimal (web diagnostics): show only a text item instead of the game
+    readonly property bool minimal: Qt.application.arguments.indexOf("--minimal") >= 0
+    Loader {
         anchors.fill: parent
         focus: true
-        onQuitRequested: Qt.quit()
+        sourceComponent: win.minimal ? minimalComp : gameComp
     }
+    Component { id: gameComp; TdGame { anchors.fill: parent; focus: true; onQuitRequested: Qt.quit() } }
+    Component { id: minimalComp; Text { anchors.centerIn: parent; text: "Operação TI - minimal"; color: "white"; font.pixelSize: 40
+                                        Component.onCompleted: console.log("OperacaoTI: minimal item ready") } }
 }

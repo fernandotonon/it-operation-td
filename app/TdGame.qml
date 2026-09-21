@@ -42,7 +42,16 @@ FocusScope {
 
     SaveSystem { id: save }
     AudioManager { id: audio; volume: save.settings.volume; muted: save.settings.muted }
-    Component.onCompleted: { save.load(); Strings.lang = save.settings.language || "en"; refresh(); console.log("OperacaoTI: save backend", save.backend, "audio bridge", audio.web ? "WebAudio" : "Clayground.Sound") }
+    Component.onCompleted: {
+        save.load(); Strings.lang = save.settings.language || "en"; refresh()
+        if (appArgs.indexOf("--no-models") >= 0) board.useModels = false
+        Qt.callLater(function () {
+            console.log("OperacaoTI: save backend", save.backend, "audio bridge", audio.web ? "WebAudio" : "Clayground.Sound", "reducedFx", reducedFx, "platform", Qt.platform.os, "language", Strings.lang)
+            if (appArgs.indexOf("--autoplay") >= 0) console.log("OperacaoTI: autoplay", JSON.stringify(debugAutoplay()))
+        })
+    }
+    // settings loaded after this object completed (WebAssembly ordering): keep the language in sync
+    Connections { target: save; function onSettingsChanged() { if (save.settings.language && Strings.lang !== save.settings.language) Strings.lang = save.settings.language } }
 
     // ---- clock: everything simulated goes through sim.step, so pause and speed are consistent -----
     FrameAnimation {
@@ -219,7 +228,10 @@ FocusScope {
     function setVolume(v) { save.writeSettings({ volume: v }) }
     function setMuted(m) { save.writeSettings({ muted: m }) }
     function setReducedFx(r) { save.writeSettings({ reducedFx: r }) }
-    readonly property bool reducedFx: save.settings.reducedFx === true
+    // command line: --reduced-fx (no shadows / MSAA / bobbing), --no-models (placeholder boxes), --autoplay (bot plays a match)
+    readonly property var appArgs: Qt.application.arguments
+    readonly property bool argReducedFx: appArgs.indexOf("--reduced-fx") >= 0
+    readonly property bool reducedFx: argReducedFx || save.settings.reducedFx === true
 
     // helpers for the HUD (plain functions so bindings re-evaluate through stateVersion)
     function board_socketHint() { var s = board.socketById(selectedSocket); return s && s.hint ? Strings.t("hint_" + s.hint) : "" }

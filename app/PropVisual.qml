@@ -29,7 +29,7 @@ Node {
         scale: Qt.vector3d(root.fitScale * 100, root.fitScale * 100, root.fitScale * 100)
         y: (root.def && root.def.footOffset ? root.def.footOffset : 0) * root.fitScale * 100 - root.sink * 100
         eulerRotation.y: root.def && root.def.rotation ? root.def.rotation : 0
-        onStatusChanged: if (status === Loader3D.Error) console.warn("PropVisual: failed to load", source)
+        onStatusChanged: { if (status === Loader3D.Error) console.warn("PropVisual: failed to load", source) }
         onLoaded: if (item && item.clip !== undefined) item.clip = Qt.binding(function () { return root.clip })
     }
 

@@ -2,29 +2,44 @@
 // Backend: Clayground's KeyValueStore (SQLite) on desktop and in the dojo; the app's C++ SaveStore
 // (browser localStorage) on WebAssembly, loaded through AppBridges.qml.
 import QtQuick
-import Clayground.Storage
 
 Item {
     id: save
-    property var settings: ({ language: "en", volume: 0.8, muted: false, reducedFx: false, tutorialSeen: [] })
+    // browsers start with reduced effects (no shadows / MSAA); the settings panel turns them back on
+    property var settings: ({ language: "en", volume: 0.8, muted: false, reducedFx: Qt.platform.os === "wasm", tutorialSeen: [] })
     property var best: ({ bestWave: 0, wins: 0, fastestWin: 0, matches: 0 })
     readonly property string settingsKey: "settings.v1"
     readonly property string bestKey: "best.v1"
     property var store: null
     readonly property string backend: store && store.backend !== undefined ? store.backend : "KeyValueStore"
 
-    KeyValueStore { id: kv; name: "OperacaoTI" }
-    // WebAssembly: SQLite would live in the page's memory only, so the app's SaveStore (browser localStorage)
-    // takes over there; everywhere else the KeyValueStore persists fine.
-    Loader { id: bridges; active: Qt.platform.os === "wasm"; source: "AppBridges.qml" }
-    Component.onCompleted: store = bridges.status === Loader.Ready && bridges.item ? bridges.item.store : kv
+    // WebAssembly: the app's SaveStore (browser localStorage) - QtQuick.LocalStorage does not exist in the wasm
+    // kit, so the KeyValueStore is created dynamically and only elsewhere. Everything else persists via SQLite.
+    Loader { id: bridges; active: Qt.platform.os === "wasm" && Qt.application.arguments.indexOf("--no-bridges") < 0; source: "AppBridges.qml" }
+    // Component.onCompleted order between parent and children is not guaranteed (it differed on WebAssembly),
+    // so the backend is resolved on first use and load() is idempotent.
+    function ensureStore() {
+        if (store) return store
+        if (bridges.status === Loader.Ready && bridges.item) store = bridges.item.store
+        else {
+            try { store = Qt.createQmlObject('import Clayground.Storage; KeyValueStore { name: "OperacaoTI" }', save, "KeyValueStore") }
+            catch (e) { console.warn("SaveSystem: no storage backend, settings will not persist", e); store = memoryStore }
+        }
+        return store
+    }
+    property bool loaded: false
+    Component.onCompleted: load()
+    // last resort: in-memory
+    property var memoryStore: ({ data: {}, backend: "memory", get: function (k, d) { return k in this.data ? this.data[k] : d }, set: function (k, v) { this.data[k] = v; return true }, remove: function (k) { delete this.data[k] } })
 
     function load() {
-        if (!store) return
+        ensureStore()
+        if (loaded) return
+        loaded = true
         try { var s = store.get(settingsKey, ""); if (s) settings = Object.assign({}, settings, JSON.parse(s)) } catch (e) { console.warn("SaveSystem: bad settings", e) }
         try { var b = store.get(bestKey, ""); if (b) best = Object.assign({}, best, JSON.parse(b)) } catch (e) { console.warn("SaveSystem: bad best results", e) }
     }
-    function writeSettings(patch) { settings = Object.assign({}, settings, patch); store.set(settingsKey, JSON.stringify(settings)) }
+    function writeSettings(patch) { settings = Object.assign({}, settings, patch); ensureStore().set(settingsKey, JSON.stringify(settings)) }
     function markTutorialSeen(key) {
         if (settings.tutorialSeen.indexOf(key) >= 0) return
         var seen = settings.tutorialSeen.slice(); seen.push(key); writeSettings({ tutorialSeen: seen })
@@ -40,8 +55,8 @@ Item {
             b.wins += 1
             if (!b.fastestWin || seconds < b.fastestWin) { b.fastestWin = Math.round(seconds); record = true }
         }
-        best = b; store.set(bestKey, JSON.stringify(b))
+        best = b; ensureStore().set(bestKey, JSON.stringify(b))
         return record
     }
-    function clearAll() { store.remove(settingsKey); store.remove(bestKey) }
+    function clearAll() { ensureStore().remove(settingsKey); store.remove(bestKey) }
 }
