@@ -270,7 +270,7 @@ Item {
         enemyCount = 0
     }
     function spawnFx(kind, x, z, tone, radius) {
-        if (reducedFx && (kind === "poof" || kind === "boost")) return
+        if (reducedFx && (kind === "poof" || kind === "boost" || kind === "coin")) return
         var f = null
         for (var i = 0; i < fxList.length; i++) if (fxList[i].life <= 0) { f = fxList[i]; break }
         if (!f) { if (fxList.length > 40) return; f = fxComp.createObject(fxLayer); fxList.push(f) }
@@ -347,7 +347,7 @@ Item {
         }
         for (var pid in projVis) if (!pseen[pid]) { projVis[pid].visible = false; projPool.push(projVis[pid]); delete projVis[pid] }
         // effects
-        for (var f = 0; f < fxList.length; f++) if (fxList[f].life > 0) fxList[f].life = Math.max(0, fxList[f].life - dt * (fxList[f].kind === "rebootRing" ? 0.6 : 2.2))
+        for (var f = 0; f < fxList.length; f++) if (fxList[f].life > 0) fxList[f].life = Math.max(0, fxList[f].life - dt * (fxList[f].kind === "rebootRing" ? 0.6 : fxList[f].kind === "coin" ? 1.1 : 2.2))
         if (beams.length) { for (var bi = 0; bi < beams.length; bi++) beams[bi].life -= dt * 8; beams = beams.filter(function (b) { return b.life > 0 }) }
     }
 }

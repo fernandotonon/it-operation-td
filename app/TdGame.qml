@@ -216,7 +216,7 @@ FocusScope {
                 break
             case "burst": board.spawnFx("burst", e.x, e.z, "#f2662f", e.radius); audio.play("burst"); break
             case "hit": if (hits++ < 1) audio.play("hit"); break
-            case "death": board.spawnFx("poof", e.x, e.z, Enemies.enemies[e.enemyType].color); audio.play("death"); break
+            case "death": board.spawnFx("poof", e.x, e.z, Enemies.enemies[e.enemyType].color); board.spawnFx("coin", e.x, e.z, "#f2c02f"); audio.play("death"); break
             case "escape": board.spawnFx("alarm", stageMap.rack.x, stageMap.rack.z, "#e63946", 1.6); audio.play("escape"); break
             case "reveal": board.spawnFx("reveal", e.x, e.z, "#3fe0f2", 0.7); audio.play("reveal"); break
             case "disable": board.spawnFx("alarm", e.x, e.z, "#e63946", 1.0); audio.play("alarm"); break

@@ -24,7 +24,10 @@ app/config/assets.js  →  PropVisual   (gameplay never names a file; a missing 
 * **Matting `best`**: QtMeshEditor's high-quality background remover (BiRefNet, MIT, ~930 MB fetched on
   first use) takes the untouched reference image and also drops the soft shadow / reflection under the
   object. U²-Net (`fast`) and the pre-matte were the first pass; every model was regenerated with `best`.
-* **Preset `fast`** (512 cascade). The `balanced`/`high` cascades stall in a Metal command buffer on this
+* **Preset `fast`** (512 cascade). Re-tested on 2026-09-21 with QtMeshEditor 3.39 / trellis.cpp: `high` (1536)
+  stalls after its fourth stage (no output for 10 minutes, killed by the watchdog at 14 minutes) and `balanced`
+  (1024) crashes trellis-cli after its eighth stage, so `fast` remains the only preset that finishes on this
+  24 GB Apple M5. Characters use 25 000 triangles and 2048 px textures, props 8 000 / 1024. The `balanced`/`high` cascades stall in a Metal command buffer on this
   24 GB Apple Silicon Mac (documented in the School Adventure project), so the script defaults to `fast`
   and only tries other presets when `PRESET=` is given.
 * **Facing**: TRELLIS.2 output faces −Z; the manifest `rotation: 180` turns fronts to the camera.
@@ -57,4 +60,35 @@ scripts/generate-models.sh                 # every source image without a GLB (l
 scripts/generate-models.sh ups laptop      # specific ids
 scripts/import-all.sh                      # balsam import + manifest refresh
 qtmesh turntable assets/exported/ups/ups.glb -o ups.png --frames 4 --size 320x320   # quick look
+```
+
+## Finishing the character set (status 2026-09-21)
+
+Generated and in the game: 19 original props, the three technicians, `staff_02`, `staff_05`, `helmet`, `mug`,
+`phone`, `whiteboard`, `coin`. Still pending: 25 staff characters plus `heart`, `reception`, `workstation`
+(their reference images are already in `assets/source-images/`; `app/config/stages.js` lists them in
+`pendingAssets` and drops their placements until they exist).
+
+What went wrong in the overnight batch, so it is not repeated:
+
+* `--preset high` stalls and `--preset balanced` crashes trellis-cli on this Mac; only `fast` completes.
+* trellis-cli exits with status 15 when anything else uses the GPU (clayrender, a browser check). Do not render
+  while generating.
+* UniRig on a 25 000-triangle character grew to 24 GB and starved TRELLIS (stalls, exit 1/137). Rig **after**
+  the generation batch, one character at a time, and watch `top -o mem`. If a rig balloons, simplify the
+  mesh first (`qtmesh lod <glb> --count 1 --reductions 0.8 --algo meshopt`) or generate characters with
+  `TRIS=20000` (the three technicians were rigged fine at 20 000).
+* The Bash tool shell is zsh: an unquoted `$LIST` is one argument. Pass ids explicitly.
+* `scripts/stall-guard.sh` kills a generator whose per-model log has been idle for 10 minutes; the in-script
+  watchdog did not fire in the batch (works in isolation - unresolved), so run the guard beside every batch.
+
+Runbook (about 6 minutes per character on the GPU, then 5-8 minutes per rig on the CPU):
+
+```bash
+scripts/stall-guard.sh assets/qtmesh-projects/logs/batch-staff2.log 600 &
+PRESET=fast scripts/generate-models.sh staff_06 staff_07 ... staff_57 heart reception workstation \
+    >> assets/qtmesh-projects/logs/batch-staff2.log 2>&1        # SEED=7 for a model whose first run failed
+for id in staff_06 ...; do scripts/rig-character.sh $id; done   # after the batch, sequentially
+TRIM=0.005 scripts/import-all.sh                                 # balsam import + manifest
+# move the finished ids from pendingAssets to generatedAssets in app/config/stages.js, then rebuild
 ```

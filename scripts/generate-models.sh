@@ -23,7 +23,7 @@ export QTMESH_NO_TELEMETRY=1
 export QTMESH_TRELLIS2_CLI="${QTMESH_TRELLIS2_CLI:-$HOME/trellis.cpp/build-cpu/trellis-cli}"
 export QTMESH_TRELLIS2_CLI_MODELS="${QTMESH_TRELLIS2_CLI_MODELS:-$HOME/trellis.cpp/models}"
 Q="${QTMESH:-/opt/homebrew/bin/qtmesh}"
-CHARACTERS=" tech_helmet tech_headset tech_polo "
+CHARACTERS=" tech_helmet tech_headset tech_polo staff_ "
 WATCHDOG_MIN="${WATCHDOG_MIN:-25}"
 STALL_SEC="${STALL_SEC:-480}"
 FALLBACK_PRESETS="${FALLBACK_PRESETS-}"
@@ -71,7 +71,7 @@ for id in "${ids[@]}"; do
     dir="$OUT_ROOT/$id"; out="$dir/$id.glb"; log="assets/qtmesh-projects/logs/$id.log"
     [ -f "$img" ] || { echo "SKIP $id (no image)"; continue; }
     [ -s "$out" ] && { echo "SKIP $id (exists)"; continue; }
-    if [[ "$CHARACTERS" == *" $id "* ]]; then tris="${TRIS:-20000}"; tex="${TEXSIZE:-2048}"
+    if [[ "$CHARACTERS" == *" $id "* || "$id" == staff_* ]]; then tris="${TRIS:-25000}"; tex="${TEXSIZE:-2048}"
     else tris="${TRIS:-8000}"; tex="${TEXSIZE:-1024}"; fi
     mkdir -p "$dir"; S=$(date +%s)
     mattflag=""

@@ -20,6 +20,16 @@ Node {
         materials: PrincipledMaterial { baseColor: root.tone; opacity: 0.55 * root.life; alphaMode: PrincipledMaterial.Blend; lighting: PrincipledMaterial.NoLighting }
         castsShadows: false
     }
+    // a credit coin pops out of a defeated threat (the coin model from the reference set, placeholder box until generated)
+    PropVisual {
+        visible: root.kind === "coin"
+        assetId: "coin"
+        height: 0.45
+        y: 20 + 110 * Math.sin(Math.min(1, root.k) * 3.1416)
+        eulerRotation.y: root.k * 540
+        scale: Qt.vector3d(1, 1, 1)
+        opacity: root.life
+    }
     Model {   // rising puff
         visible: root.kind === "poof" || root.kind === "boost"
         source: "#Sphere"

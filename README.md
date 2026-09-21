@@ -146,6 +146,10 @@ Veja [docs/asset-pipeline.md](docs/asset-pipeline.md) para o fluxo QtMeshEditor 
 * Sem trilha sonora: só cues curtos sintetizados por `scripts/gen-audio.py` (nenhuma fonte licenciada disponível).
 * A ponte de eventos do QtMesh Games (conquistas via TCP) não foi implementada; o jogo roda sozinho e o
   manifesto de exemplo está em `docs/qtmesh-games/operacao-ti.json`.
+* Personagens: além dos três técnicos, dois funcionários (`staff_02`, `staff_05`) foram gerados e animados; os
+  outros 25 e três adereços (coração, recepção, estação de trabalho) ainda estão pendentes — a geração noturna
+  falhou por falta de memória (UniRig + TRELLIS ao mesmo tempo). O roteiro para terminar está em
+  `docs/asset-pipeline.md`, "Finishing the character set".
 * Na web o jogo começa com "Menos efeitos" ligado (sem sombras/MSAA); ligue nos ajustes se a máquina aguentar.
   O anel de alcance é feito de segmentos de caixa porque o `Poly3D` do Clayground com furo travava a build WebAssembly.
 * Medições de desempenho e as capturas foram feitas com `clayrender` (renderização offscreen); a jogabilidade
