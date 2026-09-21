@@ -6,7 +6,12 @@ include(clayapp)
 file(GLOB_RECURSE OPTI_RUNTIME_ASSETS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/assets/runtime/*")
 file(GLOB OPTI_AUDIO_ASSETS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/assets/audio/*.wav")
 set(OPTI_ICON_ASSETS "${CMAKE_SOURCE_DIR}/assets/source-images/coin.png" "${CMAKE_SOURCE_DIR}/assets/source-images/heart.png")
-set(OPTI_RES_FILES ${OPTI_AUDIO_ASSETS} ${OPTI_RUNTIME_ASSETS} ${OPTI_ICON_ASSETS})
+# WebAssembly: the 3D runtime assets are NOT embedded (scripts/build-wasm.sh ships them as files that Qt's
+# loader preloads into the in-memory filesystem, /game/assets/...); audio and HUD icons stay embedded.
+set(OPTI_RES_FILES ${OPTI_AUDIO_ASSETS} ${OPTI_ICON_ASSETS})
+if(NOT EMSCRIPTEN)
+    list(APPEND OPTI_RES_FILES ${OPTI_RUNTIME_ASSETS})
+endif()
 list(FILTER OPTI_RES_FILES EXCLUDE REGEX "\\.DS_Store$")
 foreach(_f IN LISTS OPTI_RES_FILES)
     file(RELATIVE_PATH _rel "${CMAKE_SOURCE_DIR}" "${_f}")
@@ -17,6 +22,10 @@ set_source_files_properties(Strings.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 clay_app(operacao_ti
     VERSION 0.1.0
+
+    SOURCES
+        src/savestore.h src/savestore.cpp
+        src/webaudio.h src/webaudio.cpp
 
     LINK_LIBS
         Qt::Core
@@ -31,6 +40,8 @@ clay_app(operacao_ti
     QML_FILES
         Main.qml
         Sandbox.qml
+        CharacterPreview.qml
+        AppBridges.qml
         Strings.qml
         TdGame.qml
         Board3D.qml
@@ -64,3 +75,12 @@ clay_app(operacao_ti
     RES_FILES
         ${OPTI_RES_FILES}
 )
+
+# the generated QML type registration includes <savestore.h> / <webaudio.h> by bare name
+target_include_directories(operacao_ti PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+if(EMSCRIPTEN)
+    # Qt Quick 3D plus the preloaded assets need more than Clayground's 64 MB default heap;
+    # it still grows on demand (ALLOW_MEMORY_GROWTH).
+    set_target_properties(operacao_ti PROPERTIES QT_WASM_INITIAL_MEMORY "256MB")
+endif()

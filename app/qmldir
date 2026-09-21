@@ -21,3 +21,4 @@ SettingsPanel 1.0 SettingsPanel.qml
 SaveSystem 1.0 SaveSystem.qml
 AudioManager 1.0 AudioManager.qml
 CharacterPreview 1.0 CharacterPreview.qml
+AppBridges 1.0 AppBridges.qml

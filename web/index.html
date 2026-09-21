@@ -1,0 +1,192 @@
+<!doctype html>
+<!-- Operação TI: Defenda o Datacenter - page template for the web build (filled in by scripts/make-web-index.py).
+     Loads the Qt wasm behind a loading screen: download progress over all game files, rotating tips, the small
+     files arrive in one pack. Adapted from the School Adventure web page (same author, MIT). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1a2e">
+<title>__TITLE__</title>
+<script src="opti-sw.js"></script>
+<style>
+  html, body { padding: 0; margin: 0; overflow: hidden; height: 100%; background: #0f1a2e;
+               touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+               font-family: "Nunito", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  #screen { width: 100%; height: 100%; }
+  #opti-loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+                    background: linear-gradient(#0f1a2e, #1f2838); color: #dbe4f0; transition: opacity .45s ease; z-index: 10; }
+  #opti-loading.hidden { opacity: 0; pointer-events: none; }
+  #opti-loading .bubble { position: absolute; border-radius: 50%; opacity: .16; animation: float 5s ease-in-out infinite alternate; }
+  @keyframes float { from { transform: translateY(0) } to { transform: translateY(-26px) } }
+  .card { position: relative; width: min(92vw, 560px); text-align: center; padding: 18px 20px 26px; }
+  .sprite { width: 256px; height: 256px; margin: 0 auto 6px; background-repeat: no-repeat; background-size: 2048px 256px;
+            animation: turn 1.2s steps(8) infinite; filter: drop-shadow(0 10px 10px rgba(43,38,34,.25)); }
+  @keyframes turn { from { background-position: 0 0 } to { background-position: -2048px 0 } }
+  @media (max-height: 520px) { .sprite { width: 160px; height: 160px; background-size: 1280px 160px; } @keyframes turn { from { background-position: 0 0 } to { background-position: -1280px 0 } } }
+  h1 { margin: 0; font-size: clamp(30px, 6vw, 52px); color: #5ab3f0; font-weight: 800; letter-spacing: .5px; }
+  h2 { margin: 2px 0 14px; font-size: clamp(16px, 3.4vw, 26px); color: #ffffff; font-weight: 500; }
+  .bar { height: 22px; border-radius: 12px; background: #1f2838; border: 2px solid #4a5568; overflow: hidden; }
+  .bar > div { height: 100%; width: 0%; background: linear-gradient(90deg, #2f7ff2, #5ab3f0); transition: width .25s ease-out;
+               background-size: 40px 100%; }
+  #ld-status { margin-top: 10px; font-weight: 700; font-size: 17px; }
+  #ld-tip { margin-top: 14px; min-height: 44px; font-size: 15px; color: #dbe4f0; opacity: .9; padding: 8px 12px; border-radius: 12px; background: rgba(31,40,56,.8); }
+  #ld-error { display: none; margin-top: 12px; }
+  #ld-error button { font: inherit; font-weight: 700; padding: 8px 18px; border-radius: 12px; border: 2px solid #5ab3f0; background: #2f7ff2; color: white; cursor: pointer; }
+  #qtstatus { display: none; }
+</style>
+</head>
+<body onload="init()">
+  <div id="opti-loading">
+    <div class="bubble" style="left:6%;top:12%;width:70px;height:70px;background:#2f7ff2"></div>
+    <div class="bubble" style="left:80%;top:8%;width:110px;height:110px;background:#3fd07a;animation-delay:-2s"></div>
+    <div class="bubble" style="left:12%;top:70%;width:90px;height:90px;background:#f28a2f;animation-delay:-1s"></div>
+    <div class="bubble" style="left:86%;top:66%;width:60px;height:60px;background:#f2c02f;animation-delay:-3s"></div>
+    <div class="card">
+      <div class="sprite" id="ld-sprite"></div>
+      <h1>Operação TI</h1>
+      <h2>Defenda o Datacenter</h2>
+      <div class="bar"><div id="ld-fill"></div></div>
+      <div id="ld-status">…</div>
+      <div id="ld-tip"></div>
+      <div id="ld-error"><div id="ld-error-text"></div><button onclick="location.reload()">Tentar de novo / Retry</button></div>
+      <div id="qtstatus"></div>
+    </div>
+  </div>
+  <div id="screen"></div>
+
+  <script>
+    // ---- loading screen ------------------------------------------------------------------------------
+    const LOADING = { expected: __EXPECTED_BYTES__, sprites: __SPRITES__, build: "__BUILD_ID__" };
+    const lang = (navigator.language || "en").toLowerCase();
+    const pt = lang.startsWith("pt"), de = lang.startsWith("de");
+    const T = pt ? {
+        down: (p, a, b) => `Baixando o jogo… ${p}% (${a} de ${b} MB)`, prep: "Ligando o datacenter…", start: "Quase lá…",
+        fail: "Não foi possível carregar o jogo. Verifique a conexão e tente de novo.",
+        tips: ["Toque em um ponto azul ao lado da rota e escolha uma torre.", "O círculo mostra o alcance antes de gastar créditos.",
+               "Controlador de Tráfego: lentidão de até 50%, nunca acumula.", "Pacotes Ocultos só aparecem perto de um Scanner de Segurança.",
+               "Pacote Trojan solta 3 Bugs ao ser derrotado: tenha dano em área por perto.", "Reboot de Emergência (R): 3 s offline, depois turbo e sem bloqueios.",
+               "Ransomware bloqueia uma torre por 4 s; o Reboot limpa o bloqueio.", "A onda 15 é o Deploy de Sexta. Boa sorte, equipe!",
+               "Na segunda visita o jogo abre na hora: os arquivos ficam guardados no navegador."]
+    } : de ? {
+        down: (p, a, b) => `Spiel wird geladen… ${p}% (${a} von ${b} MB)`, prep: "Rechenzentrum wird hochgefahren…", start: "Fast fertig…",
+        fail: "Das Spiel konnte nicht geladen werden. Prüfe die Verbindung und versuche es noch einmal.",
+        tips: ["Tippe auf einen blauen Platz neben der Route und wähle einen Turm.", "Der Kreis zeigt die Reichweite, bevor du Credits ausgibst.",
+               "Traffic-Controller: bis zu 50 % Verlangsamung, stapelt nie.", "Tarnpakete zeigen sich nur nahe einem Sicherheits-Scanner.",
+               "Ein Trojaner-Paket setzt beim Besiegen 3 Bugs frei: halte Flächenschaden bereit.", "Notfall-Neustart (R): 3 s offline, dann Turbo und keine Sperren.",
+               "Ransomware sperrt einen Turm für 4 s; ein Neustart hebt die Sperre auf.", "Welle 15 ist das Freitags-Deployment. Viel Glück, Team!",
+               "Beim zweiten Besuch startet das Spiel sofort: die Dateien bleiben im Browser gespeichert."]
+    } : {
+        down: (p, a, b) => `Downloading the game… ${p}% (${a} of ${b} MB)`, prep: "Powering up the datacenter…", start: "Almost there…",
+        fail: "The game could not be loaded. Check your connection and try again.",
+        tips: ["Tap a blue socket beside the route and pick a tower.", "The circle shows the range before you spend credits.",
+               "Traffic Controller: up to 50% slow, never stacks.", "Stealth Packets only show up near a Security Scanner.",
+               "A Trojan Package releases 3 Bugs when defeated: keep area damage nearby.", "Emergency Reboot (R): 3 s offline, then a speed boost and no locks.",
+               "Ransomware locks a tower for 4 s; a Reboot clears it.", "Wave 15 is the Friday Deployment. Good luck, team!",
+               "The second visit starts instantly: the files stay cached in your browser."]
+    };
+    const $ = (id) => document.getElementById(id);
+    if (LOADING.sprites.length) $("ld-sprite").style.backgroundImage = `url(${LOADING.sprites[Math.floor(Math.random() * LOADING.sprites.length)]})`; else $("ld-sprite").style.display = "none";
+    let tipIndex = Math.floor(Math.random() * T.tips.length);
+    const showTip = () => { $("ld-tip").textContent = T.tips[tipIndex++ % T.tips.length]; };
+    showTip(); const tipTimer = setInterval(showTip, 4500);
+
+    let loaded = 0, ready = false, finished = false;
+    const mb = (b) => (b / 1048576).toFixed(0);
+    const render = () => {
+        if (finished) return;
+        const pct = Math.min(99, Math.floor(loaded / Math.max(1, LOADING.expected) * 100));
+        $("ld-fill").style.width = pct + "%";
+        $("ld-status").textContent = ready ? T.start : (pct >= 99 ? T.prep : T.down(pct, mb(loaded), mb(LOADING.expected)));
+    };
+    const isGameFile = (url) => /\.(wasm|js|json|bin|mesh|png|jpg)(\?|$)/.test(url) && !/opti-sw\.js/.test(url);
+    // count every byte the page receives (fetch is what Emscripten and the pack loader use)
+    const origFetch = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+        const res = await origFetch(input, init);
+        const url = typeof input === "string" ? input : (input && input.url) || "";
+        if (finished || !res.body || res.status !== 200 || !isGameFile(url)) return res;
+        const reader = res.body.getReader();
+        const stream = new ReadableStream({
+            async pull(controller) {
+                const { done, value } = await reader.read();
+                if (done) { controller.close(); return; }
+                loaded += value.byteLength; render(); controller.enqueue(value);
+            },
+            cancel() { reader.cancel(); }
+        });
+        return new Response(stream, { status: res.status, statusText: res.statusText, headers: res.headers });
+    };
+    const xhrOpen = XMLHttpRequest.prototype.open;                       // fallback for XHR-based loaders
+    XMLHttpRequest.prototype.open = function (...a) { let last = 0; this.addEventListener("progress", (e) => { loaded += e.loaded - last; last = e.loaded; render(); }); return xhrOpen.apply(this, a); };
+    render();
+
+    function gameLoaded() {
+        finished = true; clearInterval(tipTimer);
+        $("ld-fill").style.width = "100%";
+        const ld = $("opti-loading"); ld.classList.add("hidden"); setTimeout(() => ld.remove(), 600);
+    }
+    function gameFailed(e) {
+        console.error(e); clearInterval(tipTimer);
+        $("ld-status").textContent = T.fail; $("ld-error").style.display = "block";
+        $("ld-error-text").textContent = String(e && e.message || e).slice(0, 200);
+    }
+
+    // ---- keyboard focus guard --------------------------------------------------------------------------
+    // Qt for WebAssembly listens for keys on a focus helper inside its shadow DOM; a click inside the canvas
+    // can drop the DOM focus to <body>, after which the game receives no key events. Put it back.
+    const qtKeyboardFocus = () => {
+        const host = document.querySelector("#qt-shadow-container");
+        if (!host) return;
+        const helper = host.shadowRoot && host.shadowRoot.querySelector(".qt-window-focus-helper");
+        if (document.activeElement !== host) (helper || host).focus({ preventScroll: true });
+    };
+    ["pointerup", "mouseup", "touchend"].forEach(t => document.addEventListener(t, () => setTimeout(qtKeyboardFocus, 0), true));
+    document.addEventListener("focusout", (e) => { if (!e.relatedTarget) setTimeout(qtKeyboardFocus, 0); }, true);
+    window.addEventListener("keydown", () => { if (document.activeElement === document.body) qtKeyboardFocus(); }, true);
+    window.addEventListener("focus", () => setTimeout(qtKeyboardFocus, 0));
+
+    // ---- the small files: one download, written into Qt's in-memory FS before main() ------------------
+    async function loadPack() {
+        const v = "?v=" + LOADING.build;
+        const [index, bin] = await Promise.all([fetch("opti-pack.json" + v).then(r => r.json()), fetch("opti-pack.bin" + v).then(r => r.arrayBuffer())]);
+        const bytes = new Uint8Array(bin);
+        return (module) => {
+            const FS = module.FS;
+            const mkdirs = (path) => { let p = ""; for (const part of path.split("/").slice(0, -1)) { if (!part) continue; p += "/" + part; try { FS.mkdir(p); } catch (e) { /* exists */ } } };
+            for (const f of index) { mkdirs(f.destination); FS.writeFile(f.destination, bytes.subarray(f.offset, f.offset + f.size)); }
+        };
+    }
+
+    async function init() {
+        const screen = document.querySelector("#screen");
+        // Multithreaded Qt needs cross-origin isolation. On hosts without COOP/COEP headers the service worker
+        // adds them and reloads the page once; do not start (and download) Qt until that has happened.
+        if (!window.crossOriginIsolated) {
+            $("ld-status").textContent = T.prep;
+            setTimeout(() => { if (!window.crossOriginIsolated) gameFailed(new Error(pt ? "O navegador não permitiu o isolamento (SharedArrayBuffer). Tente recarregar, ou outro navegador." : de ? "Der Browser hat die Isolation (SharedArrayBuffer) nicht erlaubt. Lade neu oder nutze einen anderen Browser." : "The browser did not allow isolation (SharedArrayBuffer). Try reloading, or another browser.")); }, 15000);
+            return;
+        }
+        try {
+            const writePack = await loadPack();
+            await qtLoad({
+                arguments: (new URLSearchParams(location.search).get("args") || "").split(" ").filter(Boolean),
+                noImageDecoding: true,                 // Qt decodes images itself; browser-side decoding of hundreds of PNGs stalls startup
+                noAudioDecoding: true,
+                preRun: [writePack],
+                locateFile: (path) => path + "?v=" + LOADING.build,      // wasm / worker js: same build as this page
+                qt: {
+                    preload: ["opti-assets.json?v=" + LOADING.build],
+                    onLoaded: () => { screen.style.display = "block"; gameLoaded(); setTimeout(qtKeyboardFocus, 0); },
+                    onExit: (exitData) => { gameFailed(new Error("Application exit" + (exitData.code !== undefined ? ` with code ${exitData.code}` : "") + (exitData.text ? ` (${exitData.text})` : ""))); },
+                    entryFunction: window.__APP___entry,
+                    containerElements: [screen],
+                }
+            });
+        } catch (e) { gameFailed(e); }
+    }
+  </script>
+  <script src="__APP__.js?v=__BUILD_ID__"></script>
+  <script src="qtloader.js?v=__BUILD_ID__"></script>
+</body>
+</html>

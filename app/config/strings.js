@@ -1,8 +1,8 @@
-// UI strings. Brazilian Portuguese is the default; English is the second language.
+// UI strings. English is the default; Brazilian Portuguese and German are selectable in the settings.
 // Strings.t(key) is resolved by the Strings singleton in QML; here are the tables only.
 .pragma library
 
-var languages = ["pt_BR", "en"]
+var languages = ["en", "pt_BR", "de"]
 
 var table = {
     pt_BR: {
@@ -104,5 +104,55 @@ var table = {
         teach_lock: "Ransomware locks a nearby tower for 4 s (with a countdown). A Reboot clears the lock.",
         teach_boss: "Final boss: the Friday Deployment is slow but releases Spam at 75%, 50% and 25% health.",
         stats: "Result", defeated: "Threats resolved", escaped: "Escaped", time: "Time", newBest: "New best!"
+    },
+    de: {
+        title: "IT-Einsatz", subtitle: "Verteidige das Rechenzentrum",
+        play: "Spielen", howto: "Anleitung", settings: "Einstellungen", back: "Zurück", resume: "Weiter", restart: "Neu starten",
+        quit: "Beenden", ok: "Verstanden", close: "Schließen",
+        premise: "Freitag, 17 Uhr. Das IT-Team wollte gerade gehen, als das Monitoring-Dashboard aufleuchtete.\nHalte das Rechenzentrum online, bis der Vorfall behoben ist!",
+        credits: "Credits", health: "Dienstzustand", wave: "Welle", enemies: "Bedrohungen", remaining: "übrig",
+        startWave: "Welle starten", nextWave: "Nächste Welle", speedNormal: "1x", speedFast: "2x", pause: "Pause", paused: "Spiel pausiert",
+        build: "Bauen", upgrade: "Aufrüsten", sell: "Verkaufen", cancel: "Abbrechen", level: "Stufe", max: "Max.",
+        range: "Reichweite", damage: "Schaden", rate: "Schüsse/s", slow: "Verlangsamung", splash: "Fläche", boost: "Turbo", period: "Alle",
+        reboot: "Notfall-Neustart", rebootHint: "Tippe auf die Karte: die Türme im Bereich starten neu (3 s offline) und kommen sauber und schneller zurück.",
+        rebootReady: "Bereit", rebootCooldown: "Lädt auf", rebootEmpty: "Kein Turm in diesem Bereich.",
+        noCredits: "Nicht genug Credits.", occupied: "Auf diesem Platz steht schon ein Turm.", placeHere: "Tippe auf einen blauen Platz, um zu bauen.",
+        victory: "Vorfall behoben!", victoryText: "Das Rechenzentrum blieb online. Schönes Wochenende, Team!",
+        defeat: "Der Dienst ist ausgefallen…", defeatText: "Passiert jedem. Starte neu und probiere eine andere Turmkombination.",
+        best: "Beste Ergebnisse", bestWave: "Beste Welle", wins: "Siege", fastest: "Schnellster Sieg", none: "—",
+        language: "Sprache", volume: "Lautstärke", mute: "Stumm", reducedFx: "Weniger Effekte", on: "An", off: "Aus",
+        socket: "Bauplatz", socketHint: "Wähle unten einen Turm. Der Kreis zeigt die Reichweite vor dem Kauf.",
+        hint_corners: "Deckt zwei Abschnitte der Route ab.", hint_splash: "Ideal für Flächenschaden.", hint_support: "Nah an anderen Türmen: gut für Unterstützung.",
+        hint_range: "Weit von der Route: lieber große Reichweite.", hint_entrance: "Nah am Eingang: die Bedrohungen sind noch gebündelt.",
+        disabled: "Gesperrt", offline: "Neustart", incoming: "Im Anmarsch", ready: "Bereit?",
+        tower_patch: "Patch-Station", tower_patch_desc: "Der Laptop eines Technikers. Feuert Datenimpulse auf eine Bedrohung nach der anderen. Günstig und zuverlässig.",
+        tower_firewall: "Firewall", tower_firewall_desc: "Ein robustes Gerät mit Schild-Panel. Kurze Salven, die Gruppen treffen.",
+        tower_traffic: "Traffic-Controller", tower_traffic_desc: "Ein Netzwerk-Switch. Verlangsamt Bedrohungen in der Nähe einige Sekunden (höchstens 50 %).",
+        tower_scanner: "Sicherheits-Scanner", tower_scanner_desc: "Ein Monitor zum Scannen. Enttarnt versteckte Bedrohungen in Reichweite und macht mäßigen Schaden.",
+        tower_backup: "Backup-Station", tower_backup_desc: "Eine USV. Greift nicht an: gibt regelmäßig einem Nachbarturm einen Geschwindigkeits-Turbo.",
+        enemy_bug: "Bug", enemy_bug_desc: "Ein frecher orangefarbener Klotz. Häufig, mittlere Geschwindigkeit und Lebenspunkte.",
+        enemy_spam: "Spam-Paket", enemy_spam_desc: "Ein eiliger gelber Umschlag. Schnell und zerbrechlich, kommt in Gruppen.",
+        enemy_trojan: "Trojaner-Paket", enemy_trojan_desc: "Eine lila Kiste mit verdächtiger Naht. Setzt beim Besiegen 3 Bugs frei!",
+        enemy_stealth: "Tarnpaket", enemy_stealth_desc: "Eine fast unsichtbare türkise Raute. Nur zu treffen, solange ein Scanner sie enttarnt.",
+        enemy_lock: "Ransomware-Schloss", enemy_lock_desc: "Ein schweres rotes Vorhängeschloss. Langsam, zäh, und sperrt einen Turm in der Nähe für einige Sekunden.",
+        enemy_boss: "Freitags-Deployment", enemy_boss_desc: "Ein riesiges, instabiles Softwarepaket. Langsam, und setzt beim Verlieren von Lebenspunkten Spam-Gruppen frei.",
+        w1: "Jemand hat den Anhang geklickt.", w2: "Auf Staging lief es.", w3: "Der Praktikant hat das Skript in Produktion gestartet.", w4: "Posteingang: 9.999 neue Nachrichten.",
+        w5: "„Nur ein kleines Paket, vertrau mir.“", w6: "Notfallwartung!", w7: "Ein Geschenk mit Haken.", w8: "Der Anbieter schwört, es sei sicher.",
+        w9: "Verdächtiger Traffic auf Switch 3.", w10: "Irgendetwas versteckt sich in den Logs…", w11: "Der Virenscanner „aktualisiert“ gerade.", w12: "Niemand liest das Changelog.",
+        w13: "Ihre Dateien wurden… Moment, nein!", w14: "Backup? Welches Backup?", w15: "Freitags-Deployment.",
+        teach_place: "Tippe auf einen blauen Platz neben der Route und wähle einen Turm. Der Kreis zeigt die Reichweite vor dem Kauf.",
+        teach_patch: "Fang mit der Patch-Station an: günstig, trifft eine Bedrohung nach der anderen.",
+        teach_upgrade: "Wähle einen Turm, um ihn aufzurüsten (2 Stufen) oder zu verkaufen (70 % zurück).",
+        teach_firewall: "Firewall: kurze Flächensalven. Ideal, wo die Route abbiegt.",
+        teach_spam: "Spam-Pakete sind schnell und zerbrechlich. Verlangsamung und Flächenschaden helfen.",
+        teach_traffic: "Traffic-Controller: verlangsamt alles in der Nähe (max. 50 %, stapelt nie).",
+        teach_backup: "Backup-Station: greift nicht an, gibt aber Nachbartürmen Turbo. Turbo stapelt nie.",
+        teach_reboot: "Notfall-Neustart: Knopf drücken, dann auf die Karte tippen. Die Türme im Bereich sind 3 s offline und kommen sauber und schneller zurück.",
+        teach_trojan: "Trojaner-Paket: setzt beim Besiegen 3 Bugs frei. Halte Flächenschaden bereit!",
+        teach_scanner: "Sicherheits-Scanner: enttarnt versteckte Bedrohungen. In der nächsten Welle brauchst du ihn.",
+        teach_stealth: "Tarnpakete sind nur zu treffen, solange ein Scanner sie enttarnt (sie leuchten dann auf).",
+        teach_lock: "Ransomware sperrt einen Turm in der Nähe für 4 s (mit Countdown). Ein Neustart hebt die Sperre auf.",
+        teach_boss: "Endgegner: das Freitags-Deployment ist langsam, setzt aber bei 75 %, 50 % und 25 % Lebenspunkten Spam frei.",
+        stats: "Ergebnis", defeated: "Bedrohungen behoben", escaped: "Entkommen", time: "Zeit", newBest: "Neuer Rekord!"
     }
 }

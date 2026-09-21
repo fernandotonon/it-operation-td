@@ -1,17 +1,26 @@
-// Persistent settings and best results: one JSON blob each in Clayground's KeyValueStore (SQLite).
+// Persistent settings and best results: one JSON blob each.
+// Backend: Clayground's KeyValueStore (SQLite) on desktop and in the dojo; the app's C++ SaveStore
+// (browser localStorage) on WebAssembly, loaded through AppBridges.qml.
 import QtQuick
 import Clayground.Storage
 
 Item {
     id: save
-    property var settings: ({ language: "pt_BR", volume: 0.8, muted: false, reducedFx: false, tutorialSeen: [] })
+    property var settings: ({ language: "en", volume: 0.8, muted: false, reducedFx: false, tutorialSeen: [] })
     property var best: ({ bestWave: 0, wins: 0, fastestWin: 0, matches: 0 })
     readonly property string settingsKey: "settings.v1"
     readonly property string bestKey: "best.v1"
+    property var store: null
+    readonly property string backend: store && store.backend !== undefined ? store.backend : "KeyValueStore"
 
-    KeyValueStore { id: store; name: "OperacaoTI" }
+    KeyValueStore { id: kv; name: "OperacaoTI" }
+    // WebAssembly: SQLite would live in the page's memory only, so the app's SaveStore (browser localStorage)
+    // takes over there; everywhere else the KeyValueStore persists fine.
+    Loader { id: bridges; active: Qt.platform.os === "wasm"; source: "AppBridges.qml" }
+    Component.onCompleted: store = bridges.status === Loader.Ready && bridges.item ? bridges.item.store : kv
 
     function load() {
+        if (!store) return
         try { var s = store.get(settingsKey, ""); if (s) settings = Object.assign({}, settings, JSON.parse(s)) } catch (e) { console.warn("SaveSystem: bad settings", e) }
         try { var b = store.get(bestKey, ""); if (b) best = Object.assign({}, best, JSON.parse(b)) } catch (e) { console.warn("SaveSystem: bad best results", e) }
     }

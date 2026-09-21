@@ -1,5 +1,6 @@
-// Sound effects through Clayground.Sound. Master volume + mute from the settings; no music track
-// is shipped (no licensed source available), so the manager only plays short synthesized cues.
+// Sound effects. Desktop / dojo: Clayground.Sound. WebAssembly: the app's C++ WebAudio bridge (browser
+// AudioContext) - Qt audio sinks stall the page there. Master volume + mute come from the settings; no
+// music track is shipped (no licensed source available), only short synthesized cues.
 import QtQuick
 import Clayground.Sound
 
@@ -8,9 +9,20 @@ Item {
     property real volume: 0.8
     property bool muted: false
     readonly property real gain: muted ? 0 : volume
+    property var web: null           // WebAudio bridge when it exists (wasm builds of the app)
+    readonly property var names: ["shot", "burst", "hit", "death", "escape", "place", "sell", "upgrade", "wave", "win", "lose", "click", "reboot", "alarm", "reveal"]
+    readonly property var levels: ({ shot: 0.35, burst: 0.5, hit: 0.25, death: 0.5, escape: 0.8, place: 0.7, sell: 0.7, upgrade: 0.7, wave: 0.8, win: 0.9, lose: 0.9, click: 0.6, reboot: 0.8, alarm: 0.7, reveal: 0.6 })
+
+    Loader { id: bridges; active: Qt.platform.os === "wasm"; source: "AppBridges.qml" }
+    Component.onCompleted: {
+        if (bridges.status !== Loader.Ready || !bridges.item) return
+        var w = bridges.item.web
+        if (w && w.available) { web = w; names.forEach(function (n) { w.load(n, Qt.resolvedUrl("../assets/audio/" + n + ".wav")) }) }
+    }
 
     function play(name) {
         if (gain <= 0) return
+        if (web) { web.play(name, gain * (levels[name] || 0.6)); return }
         var s = sounds[name]
         if (s) s.play()
     }

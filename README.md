@@ -1,5 +1,7 @@
 # Operação TI: Defenda o Datacenter
 
+*English default in-game; this README is in Portuguese. Play in the browser: https://fernandotonon.github.io/it-operation-td/*
+
 **Um tower defense 3D leve e bem-humorado, feito com [Clayground](https://github.com/MisterGC/clayground);
 equipamentos e técnicos gerados a partir das imagens de referência *Operação TI* no
 [QtMeshEditor](https://github.com/fernandotonon/QtMeshEditor).**
@@ -7,7 +9,7 @@ equipamentos e técnicos gerados a partir das imagens de referência *Operação
 Sexta-feira, 17h. A equipe de TI já ia embora quando o painel de monitoramento acendeu. Coloque
 Estações de Patch, Firewalls, Controladores de Tráfego, Scanners de Segurança e Estações de Backup ao
 lado da rota de cabos, sobreviva a quinze ondas de ameaças de desenho animado e ao chefe final, o
-**Deploy de Sexta**. Português (BR) por padrão, inglês nos ajustes. Sem internet, sem contas, sem anúncios.
+**Deploy de Sexta**. Inglês por padrão; português (BR) e alemão nos ajustes. Sem internet, sem contas, sem anúncios.
 
 ![Partida em andamento](docs/screenshots/match.png)
 

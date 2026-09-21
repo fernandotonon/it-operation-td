@@ -42,7 +42,7 @@ FocusScope {
 
     SaveSystem { id: save }
     AudioManager { id: audio; volume: save.settings.volume; muted: save.settings.muted }
-    Component.onCompleted: { save.load(); Strings.lang = save.settings.language || "pt_BR"; refresh() }
+    Component.onCompleted: { save.load(); Strings.lang = save.settings.language || "en"; refresh(); console.log("OperacaoTI: save backend", save.backend, "audio bridge", audio.web ? "WebAudio" : "Clayground.Sound") }
 
     // ---- clock: everything simulated goes through sim.step, so pause and speed are consistent -----
     FrameAnimation {
@@ -224,6 +224,7 @@ FocusScope {
     // helpers for the HUD (plain functions so bindings re-evaluate through stateVersion)
     function board_socketHint() { var s = board.socketById(selectedSocket); return s && s.hint ? Strings.t("hint_" + s.hint) : "" }
     function saveBest() { return save.best }
+    function saveBackend() { return save.backend }
     function saveSettings() { return save.settings }
 
     // ---- debugging helpers (dojo / clayrender) -----------------------------------------------------------
