@@ -20,3 +20,10 @@ var waves = [
     { intro: "w14", groups: [ { type: "lock", count: 3, gap: 6.0, delay: 0 }, { type: "trojan", count: 5, gap: 3.0, delay: 4 }, { type: "stealth", count: 8, gap: 1.5, delay: 10 } ] },
     { intro: "w15", groups: [ { type: "boss", count: 1, gap: 1.0, delay: 0 }, { type: "spam", count: 8, gap: 0.6, delay: 20 } ], teach: ["boss"] }
 ]
+
+// The wave list of a stage with `count` waves: the first count-1 standard waves, then the boss wave.
+function forStage(count) {
+    var n = Math.max(2, Math.min(count, waves.length))
+    if (n === waves.length) return waves
+    return waves.slice(0, n - 1).concat([waves[waves.length - 1]])
+}

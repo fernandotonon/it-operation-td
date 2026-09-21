@@ -4,12 +4,13 @@
 import QtQuick
 import QtQuick3D
 import Clayground.Canvas3D
-import "config/map.js" as Map
+import "config/stages.js" as St
 import "config/towers.js" as Towers
 
 Item {
     id: board
     property var sim: null
+    property var map: St.mapOf(St.stages[0])      // the stage's board, path, sockets, rack, decor (set by TdGame)
     property real simTime: 0
     property bool reducedFx: false
     property bool useModels: true
@@ -22,8 +23,8 @@ Item {
     property var occupied: ({})
     signal tapped(real x, real z)
     signal hovered(real x, real z)
-    readonly property var mapPath: Map.path
-    readonly property var sockets: Map.sockets
+    readonly property var mapPath: map.path
+    readonly property var sockets: map.sockets
     readonly property real pathLen: sim ? sim.pathLength : 1
 
     // Screen position of a board point. Projected through the camera's own matrices (mapToViewport is pure
@@ -49,13 +50,13 @@ Item {
     }
     function socketNear(x, z, maxDist) {
         var best = null, bd = maxDist || 0.9
-        for (var i = 0; i < Map.sockets.length; i++) {
-            var s = Map.sockets[i], d = Math.hypot(s.x - x, s.z - z)
+        for (var i = 0; i < map.sockets.length; i++) {
+            var s = map.sockets[i], d = Math.hypot(s.x - x, s.z - z)
             if (d < bd) { bd = d; best = s }
         }
         return best
     }
-    function socketById(id) { for (var i = 0; i < Map.sockets.length; i++) if (Map.sockets[i].id === id) return Map.sockets[i]; return null }
+    function socketById(id) { for (var i = 0; i < map.sockets.length; i++) if (map.sockets[i].id === id) return map.sockets[i]; return null }
 
     View3D {
         id: view
@@ -86,40 +87,40 @@ Item {
         DirectionalLight { eulerRotation: Qt.vector3d(-30, 150, 0); brightness: 0.35; color: "#cfe0ff" }
 
         // ---- floor and perimeter ---------------------------------------------------------------
-        Box3D { y: -10; width: (Map.board.maxX - Map.board.minX) * 100; height: 10; depth: (Map.board.maxZ - Map.board.minZ) * 100
+        Box3D { y: -10; width: (board.map.board.maxX - board.map.board.minX) * 100; height: 10; depth: (board.map.board.maxZ - board.map.board.minZ) * 100
                 color: "#d3dbe6"; useToonShading: true; showEdges: false; receivesShadows: true; castsShadows: false }
         Repeater3D {   // tile seams
-            model: Math.round(Map.board.maxX - Map.board.minX) + 1
-            delegate: Box3D { required property int index; x: (Map.board.minX + index) * 100; y: 0; width: 2; height: 0.8; depth: (Map.board.maxZ - Map.board.minZ) * 100; color: "#c5cfdb"; showEdges: false; lighting: 0; castsShadows: false }
+            model: Math.round(board.map.board.maxX - board.map.board.minX) + 1
+            delegate: Box3D { required property int index; x: (board.map.board.minX + index) * 100; y: 0; width: 2; height: 0.8; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#c5cfdb"; showEdges: false; lighting: 0; castsShadows: false }
         }
         Repeater3D {
-            model: Math.round(Map.board.maxZ - Map.board.minZ) + 1
-            delegate: Box3D { required property int index; z: (Map.board.minZ + index) * 100; y: 0; width: (Map.board.maxX - Map.board.minX) * 100; height: 0.8; depth: 2; color: "#c5cfdb"; showEdges: false; lighting: 0; castsShadows: false }
+            model: Math.round(board.map.board.maxZ - board.map.board.minZ) + 1
+            delegate: Box3D { required property int index; z: (board.map.board.minZ + index) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX) * 100; height: 0.8; depth: 2; color: "#c5cfdb"; showEdges: false; lighting: 0; castsShadows: false }
         }
         // low walls; the back wall carries the monitoring wall
-        Box3D { z: (Map.board.minZ - 0.15) * 100; y: 0; width: (Map.board.maxX - Map.board.minX + 0.6) * 100; height: 120; depth: 30; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
+        Box3D { z: (board.map.board.minZ - 0.15) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX + 0.6) * 100; height: 120; depth: 30; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
         Repeater3D {
             model: 8
-            delegate: Box3D { required property int index; x: -700 + index * 200; z: (Map.board.minZ) * 100 + 2; y: 48; width: 150; height: 60; depth: 4
+            delegate: Box3D { required property int index; x: -700 + index * 200; z: (board.map.board.minZ) * 100 + 2; y: 48; width: 150; height: 60; depth: 4
                               color: index % 3 === 0 ? "#2f7ff2" : index % 3 === 1 ? "#1d4fa8" : "#3fd07a"; showEdges: true; edgeColor: "#0b1a33"; lighting: 0; castsShadows: false }
         }
-        Box3D { x: (Map.board.minX - 0.15) * 100; y: 0; width: 30; height: 50; depth: (Map.board.maxZ - Map.board.minZ) * 100; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
-        Box3D { x: (Map.board.maxX + 0.15) * 100; y: 0; width: 30; height: 50; depth: (Map.board.maxZ - Map.board.minZ) * 100; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
-        Box3D { z: (Map.board.maxZ + 0.15) * 100; y: 0; width: (Map.board.maxX - Map.board.minX + 0.6) * 100; height: 24; depth: 30; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
+        Box3D { x: (board.map.board.minX - 0.15) * 100; y: 0; width: 30; height: 50; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
+        Box3D { x: (board.map.board.maxX + 0.15) * 100; y: 0; width: 30; height: 50; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
+        Box3D { z: (board.map.board.maxZ + 0.15) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX + 0.6) * 100; height: 24; depth: 30; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
 
         // ---- route: cable channel + travelling pulses ------------------------------------------
         Repeater3D {
-            model: Map.path.length - 1
+            model: board.map.path.length - 1
             delegate: Node {
                 required property int index
-                readonly property var a: Map.path[index]
-                readonly property var b: Map.path[index + 1]
+                readonly property var a: board.map.path[index]
+                readonly property var b: board.map.path[index + 1]
                 readonly property bool horizontal: Math.abs(b.x - a.x) > Math.abs(b.z - a.z)
                 readonly property real len: Math.hypot(b.x - a.x, b.z - a.z)
                 x: (a.x + b.x) / 2 * 100; z: (a.z + b.z) / 2 * 100
-                Box3D { y: 0; width: (horizontal ? len + Map.pathWidth : Map.pathWidth) * 100; height: 3; depth: (horizontal ? Map.pathWidth : len + Map.pathWidth) * 100
+                Box3D { y: 0; width: (horizontal ? len + board.map.pathWidth : board.map.pathWidth) * 100; height: 3; depth: (horizontal ? board.map.pathWidth : len + board.map.pathWidth) * 100
                         color: "#6b7a94"; useToonShading: true; showEdges: false; receivesShadows: true; castsShadows: false }
-                Box3D { y: 3; width: (horizontal ? len + Map.pathWidth - 0.3 : Map.pathWidth - 0.3) * 100; height: 1; depth: (horizontal ? Map.pathWidth - 0.3 : len + Map.pathWidth - 0.3) * 100
+                Box3D { y: 3; width: (horizontal ? len + board.map.pathWidth - 0.3 : board.map.pathWidth - 0.3) * 100; height: 1; depth: (horizontal ? board.map.pathWidth - 0.3 : len + board.map.pathWidth - 0.3) * 100
                         color: "#8b9bb5"; showEdges: false; lighting: 0.8; receivesShadows: true; castsShadows: false }
             }
         }
@@ -136,7 +137,7 @@ Item {
 
         // ---- entrance portal ----------------------------------------------------------------------
         Node {
-            x: Map.portal.x * 100; z: Map.portal.z * 100
+            x: board.map.portal.x * 100; z: board.map.portal.z * 100
             Box3D { z: -85; y: 0; width: 30; height: 160; depth: 30; color: "#1d4fa8"; useToonShading: true; showEdges: true; edgeColor: "#0b1a33" }
             Box3D { z: 85; y: 0; width: 30; height: 160; depth: 30; color: "#1d4fa8"; useToonShading: true; showEdges: true; edgeColor: "#0b1a33" }
             Box3D { y: 160; width: 30; height: 24; depth: 200; color: "#1d4fa8"; useToonShading: true; showEdges: true; edgeColor: "#0b1a33" }
@@ -146,16 +147,16 @@ Item {
 
         // ---- objective: the server rack with a health glow ----------------------------------------
         Node {
-            x: Map.rack.x * 100; z: Map.rack.z * 100
+            x: board.map.rack.x * 100; z: board.map.rack.z * 100
             Model { source: "#Cylinder"; y: 2; scale: Qt.vector3d(1.7, 0.02, 1.7)
                     materials: PrincipledMaterial { baseColor: board.healthRatio > 0.5 ? "#3fd07a" : board.healthRatio > 0.25 ? "#f2c02f" : "#e63946"; opacity: 0.35 + 0.1 * Math.sin(board.simTime * 4); alphaMode: PrincipledMaterial.Blend; lighting: PrincipledMaterial.NoLighting }
                     castsShadows: false }
-            PropVisual { assetId: "server_rack"; height: 2.0; eulerRotation.y: Map.rack.yaw; useModels: board.useModels }
+            PropVisual { assetId: "server_rack"; height: 2.0; eulerRotation.y: board.map.rack.yaw; useModels: board.useModels }
         }
 
         // ---- sockets -------------------------------------------------------------------------------
         Repeater3D {
-            model: Map.sockets
+            model: board.map.sockets
             delegate: Node {
                 required property var modelData
                 readonly property bool isSelected: board.selectedSocket === modelData.id
@@ -209,7 +210,7 @@ Item {
 
         // ---- perimeter decoration -----------------------------------------------------------------
         Repeater3D {
-            model: Map.decor
+            model: board.map.decor
             delegate: PropVisual {
                 required property var modelData
                 assetId: modelData.asset

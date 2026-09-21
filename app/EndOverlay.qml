@@ -14,11 +14,12 @@ Rectangle {
             Text { text: root.won ? Strings.t("victory") : Strings.t("defeat"); color: root.won ? "#3fd07a" : "#ff8a8a"; font.pixelSize: 34; font.bold: true; anchors.horizontalCenter: parent.horizontalCenter }
             Text { text: root.won ? Strings.t("victoryText") : Strings.t("defeatText"); color: "#dbe4f0"; font.pixelSize: 17; width: parent.width; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter }
             Text { readonly property var s: game ? (game.stateVersion, game.sim.state.stats) : null
-                   text: s ? Strings.t("wave") + " " + game.wave + " / " + game.waveCount + "    " + Strings.t("defeated") + ": " + s.defeated + "    " + Strings.t("escaped") + ": " + s.escaped + "    " + Strings.t("time") + " " + Math.floor(game.simTime / 60) + ":" + ("0" + Math.floor(game.simTime % 60)).slice(-2) : ""
+                   text: s ? Strings.t("stage") + " " + (game.stageIndex + 1) + "  ·  " + Strings.t("wave") + " " + game.wave + " / " + game.waveCount + "    " + Strings.t("defeated") + ": " + s.defeated + "    " + Strings.t("escaped") + ": " + s.escaped + "    " + Strings.t("time") + " " + Math.floor(game.simTime / 60) + ":" + ("0" + Math.floor(game.simTime % 60)).slice(-2) : ""
                    color: "white"; font.pixelSize: 15; anchors.horizontalCenter: parent.horizontalCenter }
             Text { visible: game && game.newRecord; text: "★ " + Strings.t("newBest"); color: "#ffe9a8"; font.pixelSize: 18; font.bold: true; anchors.horizontalCenter: parent.horizontalCenter }
-            BigButton { text: Strings.t("restart"); primary: true; tone: "#3fd07a"; width: parent.width; implicitHeight: 60; onClicked: game.startMatch() }
-            BigButton { text: Strings.t("back"); width: parent.width; onClicked: game.backToTitle() }
+            BigButton { visible: root.won && game.hasNextStage; text: Strings.t("nextStage"); primary: true; tone: "#3fd07a"; width: parent.width; implicitHeight: 60; onClicked: game.nextStage() }
+            BigButton { text: Strings.t("restart"); primary: !(root.won && game.hasNextStage); tone: "#3fd07a"; width: parent.width; implicitHeight: 52; onClicked: game.startMatch() }
+            BigButton { text: Strings.t("stages"); width: parent.width; onClicked: game.openStages() }
         }
     }
 }

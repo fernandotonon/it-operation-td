@@ -15,6 +15,7 @@ Rectangle {
             BigButton { text: Strings.t("resume"); primary: true; tone: "#3fd07a"; width: parent.width; onClicked: game.togglePause() }
             BigButton { text: Strings.t("restart"); width: parent.width; onClicked: game.startMatch() }
             BigButton { text: Strings.t("settings"); width: parent.width; onClicked: root.showSettings = true }
+            BigButton { text: Strings.t("stages"); width: parent.width; onClicked: game.openStages() }
             BigButton { text: Strings.t("quit"); tone: "#f2662f"; width: parent.width; onClicked: game.backToTitle() }
         }
     }

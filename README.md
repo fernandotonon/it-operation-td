@@ -73,8 +73,30 @@ segundos de simulação; `game.debugAutoplay()` joga a partida inteira com um bo
 ao inspector do Dojo. `app/CharacterPreview.qml` mostra um asset e um clipe de animação isolados
 (`--set 'assetId="tech_polo"' --set 'clip="Cheer"'`). `scripts/screenshots.sh` refaz as capturas de `docs/screenshots/`.
 
+## Fases
+
+Doze fases, cada uma com sua rota e seus pontos de instalação (`app/config/stages.js`); vencer uma fase libera a
+seguinte e o melhor resultado (saúde restante, tempo) fica salvo por fase. As primeiras têm menos ondas
+(8, 10, 12…) e a última onda é sempre o Deploy de Sexta; a vida das ameaças cresce fase a fase.
+
+| # | Fase | Ondas | Dif. | # | Fase | Ondas | Dif. |
+|---|---|---|---|---|---|---|---|
+| 1 | Sala de Servidores | 8 | ★ | 7 | Escadaria | 13 | ★★★ |
+| 2 | Corredor Leste | 10 | ★ | 8 | Duplo Laço | 13 | ★★★ |
+| 3 | Zigue-zague | 10 | ★★ | 9 | Labirinto | 14 | ★★★ |
+| 4 | Volta Completa | 12 | ★★ | 10 | Sala Fria | 15 | ★★ |
+| 5 | Serpentina | 12 | ★★ | 11 | Núcleo | 15 | ★★★★ |
+| 6 | Anel Externo | 12 | ★★★ | 12 | Sexta-feira 13 | 15 | ★★★★ |
+
+`node tests/stages.test.js` valida a geometria de todas as fases (rota dentro do tabuleiro, pontos fora da
+rota, decoração sem cobrir pontos); `node tests/stage-balance.mjs` faz um bot jogar cada fase até o fim.
+
+![Seleção de fases](docs/screenshots/stages.png)
+
 ## Como jogar
 
+* A interface tem um modo compacto para telas pequenas (celular em paisagem): os cartões de torre quebram em
+  duas linhas quando não cabem ao lado do cartão da onda.
 * Toque num **ponto azul** ao lado da rota e escolha uma torre (o círculo mostra o alcance antes de
   gastar). Toque de novo no cartão para comprar; `1`–`5` também escolhem.
 * Toque numa torre para **melhorar** (2 níveis) ou **vender** (70% de volta).
@@ -99,7 +121,7 @@ Ransomware (bloqueia uma torre por 4 s) e o chefe Deploy de Sexta (solta Spam a 
 ```
 app/                 QML + JS do jogo (Main.qml entrada, Sandbox.qml para o Dojo)
   scripts/Sim.js     simulação completa, sem Qt (movimento, alvos, projéteis, efeitos, economia, ondas)
-  config/            tabelas: map.js, towers.js, enemies.js, waves.js, tuning.js, strings.js, assets.js
+  config/            tabelas: stages.js (12 fases), towers.js, enemies.js, waves.js, tuning.js, strings.js, assets.js
   Board3D.qml        cena 3D (câmera fixa, rota, pontos, rack, decoração, pools de visuais)
   Hud.qml, *Overlay  interface 2D
 assets/source-images cópias renomeadas das referências usadas; exported/ GLBs (+ <id>_trim.glb sem a base);
@@ -107,7 +129,7 @@ assets/source-images cópias renomeadas das referências usadas; exported/ GLBs 
 reference/           as imagens de referência originais, intocadas
 scripts/             pipeline de assets: generate-models.sh, trim-base.py, rig-character.sh, import-all.sh,
                      update-asset-manifest.py, gen-audio.py, screenshots.sh
-tests/               sim.test.js (regras), balance-probe.mjs
+tests/               sim.test.js (regras), stages.test.js (geometria das fases), stage-balance.mjs, balance-probe.mjs
 docs/                asset-pipeline.md, qtmesh-games/operacao-ti.json (manifesto para o QtMesh Games)
 ```
 

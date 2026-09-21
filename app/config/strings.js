@@ -6,6 +6,9 @@ var languages = ["en", "pt_BR", "de"]
 
 var table = {
     pt_BR: {
+        rebootShort: "Reboot", stages: "Fases", stage: "Fase", chooseStage: "escolher fase", nextStage: "Próxima fase", wavesShort: "ondas", locked: "Bloqueada", notPlayed: "Ainda não jogada", bestHealth: "Melhor",
+        stage_1: "Sala de Servidores", stage_2: "Corredor Leste", stage_3: "Zigue-zague", stage_4: "Volta Completa", stage_5: "Serpentina", stage_6: "Anel Externo",
+        stage_7: "Escadaria", stage_8: "Duplo Laço", stage_9: "Labirinto", stage_10: "Sala Fria", stage_11: "Núcleo", stage_12: "Sexta-feira 13",
         title: "Operação TI", subtitle: "Defenda o Datacenter",
         play: "Jogar", howto: "Como jogar", settings: "Ajustes", back: "Voltar", resume: "Continuar", restart: "Reiniciar",
         quit: "Sair", ok: "Entendi", close: "Fechar",
@@ -56,6 +59,9 @@ var table = {
         stats: "Resultado", defeated: "Ameaças resolvidas", escaped: "Escapadas", time: "Tempo", newBest: "Novo recorde!"
     },
     en: {
+        rebootShort: "Reboot", stages: "Stages", stage: "Stage", chooseStage: "choose a stage", nextStage: "Next stage", wavesShort: "waves", locked: "Locked", notPlayed: "Not played yet", bestHealth: "Best",
+        stage_1: "Server Room", stage_2: "East Corridor", stage_3: "Zigzag", stage_4: "Full Loop", stage_5: "Serpentine", stage_6: "Outer Ring",
+        stage_7: "Staircase", stage_8: "Double Loop", stage_9: "Maze", stage_10: "Cold Room", stage_11: "The Core", stage_12: "Friday the 13th",
         title: "IT Operations", subtitle: "Defend the Datacenter",
         play: "Play", howto: "How to play", settings: "Settings", back: "Back", resume: "Resume", restart: "Restart",
         quit: "Quit", ok: "Got it", close: "Close",
@@ -106,6 +112,9 @@ var table = {
         stats: "Result", defeated: "Threats resolved", escaped: "Escaped", time: "Time", newBest: "New best!"
     },
     de: {
+        rebootShort: "Neustart", stages: "Level", stage: "Level", chooseStage: "Level wählen", nextStage: "Nächstes Level", wavesShort: "Wellen", locked: "Gesperrt", notPlayed: "Noch nicht gespielt", bestHealth: "Beste",
+        stage_1: "Serverraum", stage_2: "Ostkorridor", stage_3: "Zickzack", stage_4: "Große Runde", stage_5: "Serpentine", stage_6: "Äußerer Ring",
+        stage_7: "Treppe", stage_8: "Doppelschleife", stage_9: "Labyrinth", stage_10: "Kühlraum", stage_11: "Der Kern", stage_12: "Freitag der 13.",
         title: "IT-Einsatz", subtitle: "Verteidige das Rechenzentrum",
         play: "Spielen", howto: "Anleitung", settings: "Einstellungen", back: "Zurück", resume: "Weiter", restart: "Neu starten",
         quit: "Beenden", ok: "Verstanden", close: "Schließen",

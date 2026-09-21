@@ -58,6 +58,7 @@ clay_app(operacao_ti
         EnemyIcon.qml
         TutorialCard.qml
         TitleOverlay.qml
+        StageSelectOverlay.qml
         PauseOverlay.qml
         EndOverlay.qml
         SettingsPanel.qml
@@ -65,7 +66,7 @@ clay_app(operacao_ti
         AudioManager.qml
         scripts/Sim.js
         scripts/PlaceholderShapes.js
-        config/map.js
+        config/stages.js
         config/towers.js
         config/enemies.js
         config/waves.js

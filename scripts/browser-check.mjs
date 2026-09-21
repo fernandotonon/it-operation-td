@@ -17,10 +17,11 @@ const opt = (name, def) => { const i = args.indexOf(name); return i >= 0 ? args[
 const seconds = Number(opt("--seconds", 40));
 const out = opt("--out", "browser-check.png");
 const chrome = opt("--chrome", process.env.CHROME ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
+const size = opt("--size", "1280,720");
 const port = Number(opt("--port", process.env.CDP_PORT || 0)) || (9400 + Math.floor(Math.random() * 100));   // own DevTools port: other Chrome instances may hold 9333
 
 const proc = spawn(chrome, [
-  "--headless=new", `--remote-debugging-port=${port}`, "--remote-allow-origins=*", "--window-size=1280,720",
+  "--headless=new", `--remote-debugging-port=${port}`, "--remote-allow-origins=*", `--window-size=${size}`,
   "--no-first-run", "--user-data-dir=" + (process.env.PROFILE ?? "/tmp/opti-browser-check"), "--enable-unsafe-swiftshader",
   "--ignore-gpu-blocklist", "--use-angle=metal", "--enable-webgl", "--mute-audio", "about:blank",
 ], { stdio: "ignore" });

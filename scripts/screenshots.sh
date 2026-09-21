@@ -15,4 +15,7 @@ out=docs/screenshots; mkdir -p "$out"
 "$R" app/Sandbox.qml --out "$out/lock.png"    --size 1400x800 --eval 'game.debugStart(13, {s9:"patch", s1:"firewall", s2:"scanner", s3:"patch", s7:"traffic"})' --eval 'game.debugAdvance(26)'
 "$R" app/Sandbox.qml --out "$out/boss.png"    --size 1400x800 --eval 'game.debugStart(15)' --eval 'game.debugAdvance(40)'
 "$R" app/Sandbox.qml --out "$out/victory.png" --size 1400x800 --eval 'game.debugAutoplay()'
+"$R" app/Sandbox.qml --out "$out/stages.png"  --size 1400x800 --eval 'game.openStages()'
+"$R" app/Sandbox.qml --out "$out/stage7.png"  --size 1400x800 --eval 'game.debugStart(5, null, 6)' --eval 'game.debugAdvance(14)'
+"$R" app/Sandbox.qml --out "$out/phone.png"   --size 850x390  --eval 'game.startMatch(); game.skipTutorial()' --eval 'game.onBoardTapped(0, -2.5); game.armTower("firewall")'
 ls -la "$out"

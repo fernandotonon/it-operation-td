@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url"
 import { dirname, join } from "node:path"
 const here = dirname(fileURLToPath(import.meta.url))
 const cfg = (f) => loadQmlJs(join(here, "..", "app", "config", f))
-const defs = { map: cfg("map.js").map ?? cfg("map.js"), towers: cfg("towers.js").towers, enemies: cfg("enemies.js").enemies,
+const defs = { map: null, towers: cfg("towers.js").towers, enemies: cfg("enemies.js").enemies,
                waves: cfg("waves.js").waves, tuning: cfg("tuning.js").tuning }
-const mapMod = cfg("map.js"); defs.map = { board: mapMod.board, path: mapMod.path, sockets: mapMod.sockets, rack: mapMod.rack }
+const St = cfg("stages.js"); defs.map = St.mapOf(St.stages[0])
 const { createSim } = loadQmlJs(join(here, "..", "app", "scripts", "Sim.js"))
 
 let passed = 0

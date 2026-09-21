@@ -2,7 +2,7 @@
 // Reboot aiming mode, tutorial cards, persistence and audio. Presentation lives in Board3D and Hud.
 import QtQuick
 import "scripts/Sim.js" as SimJs
-import "config/map.js" as Map
+import "config/stages.js" as St
 import "config/towers.js" as Towers
 import "config/enemies.js" as Enemies
 import "config/waves.js" as Waves
@@ -34,11 +34,26 @@ FocusScope {
     property var statusLabels: []              // { x, y, text, tone } screen-space labels for locked/rebooting towers
     property real matchStart: 0
     property bool newRecord: false
-    readonly property int waveCount: Waves.waves.length
     readonly property var towerOrder: Towers.order
 
-    property var sim: SimJs.createSim({ map: { board: Map.board, path: Map.path, sockets: Map.sockets, rack: Map.rack },
-                                        towers: Towers.towers, enemies: Enemies.enemies, waves: Waves.waves, tuning: Tuning.tuning })
+    // ---- stages ----------------------------------------------------------------------------------------
+    property int stageIndex: 0
+    readonly property var stage: St.stages[stageIndex]
+    readonly property var stageMap: St.mapOf(stage)
+    readonly property var stageWaves: Waves.forStage(stage.waves)
+    readonly property int waveCount: stageWaves.length
+    readonly property int stageCount: St.stages.length
+    property var sim: makeSim()
+    function makeSim() {
+        return SimJs.createSim({ map: stageMap, towers: Towers.towers, enemies: Enemies.enemies, waves: stageWaves,
+                                 tuning: Object.assign({}, Tuning.tuning, { startCredits: stage.credits, hpMultiplier: stage.hp, bossScale: stage.waves / 15 }) })
+    }
+    function selectStage(index) {
+        stageIndex = Math.max(0, Math.min(stageCount - 1, index))
+        sim = makeSim(); board.sim = sim; board.reset(); refresh()
+    }
+    function stageUnlocked(index) { return index < save.progress.unlocked }
+    function stageBest(index) { return save.progress.stages[String(St.stages[index].id)] || null }
 
     SaveSystem { id: save }
     AudioManager { id: audio; volume: save.settings.volume; muted: save.settings.muted }
@@ -76,7 +91,8 @@ FocusScope {
     }
 
     // ---- match lifecycle --------------------------------------------------------------------------
-    function startMatch() {
+    function startMatch(index) {
+        if (index !== undefined && index !== stageIndex) selectStage(index)
         sim.reset(); board.reset(); board.celebrate = false
         selectedSocket = ""; selectedTower = 0; armedType = ""; rebootMode = false; toasts = []; statusLabels = []
         speed = 1; paused = false; newRecord = false
@@ -90,7 +106,7 @@ FocusScope {
         screen = won ? "won" : "lost"
         board.celebrate = won
         audio.play(won ? "win" : "lose")
-        newRecord = save.recordMatch(won, sim.state.wave, sim.state.time)
+        newRecord = save.recordMatch(stage.id, won, sim.state.wave, sim.state.time, sim.state.health, stageCount)
         rebootMode = false; board.rebootCursor = null
     }
     function togglePause() {
@@ -99,11 +115,14 @@ FocusScope {
         audio.play("click")
     }
     function backToTitle() { screen = "title"; paused = false; sim.reset(); board.reset(); refresh() }
+    function openStages() { screen = "stages"; paused = false; sim.reset(); board.reset(); refresh() }
+    readonly property bool hasNextStage: stageIndex + 1 < stageCount
+    function nextStage() { if (hasNextStage) startMatch(stageIndex + 1) }
 
     // ---- waves and tutorial cards -------------------------------------------------------------------
     function nextWaveIndex() { return sim.state.wave }   // 0-based index of the wave that starts next
     function showTeachFor(waveIndex, then) {
-        var w = Waves.waves[waveIndex]
+        var w = stageWaves[waveIndex]
         var keys = (w && w.teach ? w.teach : []).filter(function (k) { return !save.tutorialSeen(k) })
         if (keys.length === 0) { then(); return }
         tutorial.keys = keys
@@ -117,7 +136,7 @@ FocusScope {
         })
     }
     function previewNextWave() { return sim.previewWave(nextWaveIndex()) }
-    function nextWaveIntro() { var w = Waves.waves[nextWaveIndex()]; return w ? Strings.t(w.intro) : "" }
+    function nextWaveIntro() { var w = stageWaves[nextWaveIndex()]; return w ? Strings.t(w.intro) : "" }
 
     // ---- selection / build flow -----------------------------------------------------------------------
     function onBoardTapped(x, z) {
@@ -198,7 +217,7 @@ FocusScope {
             case "burst": board.spawnFx("burst", e.x, e.z, "#f2662f", e.radius); audio.play("burst"); break
             case "hit": if (hits++ < 1) audio.play("hit"); break
             case "death": board.spawnFx("poof", e.x, e.z, Enemies.enemies[e.enemyType].color); audio.play("death"); break
-            case "escape": board.spawnFx("alarm", Map.rack.x, Map.rack.z, "#e63946", 1.6); audio.play("escape"); break
+            case "escape": board.spawnFx("alarm", stageMap.rack.x, stageMap.rack.z, "#e63946", 1.6); audio.play("escape"); break
             case "reveal": board.spawnFx("reveal", e.x, e.z, "#3fe0f2", 0.7); audio.play("reveal"); break
             case "disable": board.spawnFx("alarm", e.x, e.z, "#e63946", 1.0); audio.play("alarm"); break
             case "rebootDone": board.spawnFx("rebootRing", e.x, e.z, "#3fd07a", Tuning.tuning.reboot.radius); audio.play("upgrade"); break
@@ -242,12 +261,12 @@ FocusScope {
     // ---- debugging helpers (dojo / clayrender) -----------------------------------------------------------
     function debugInfo() {
         var S = sim.state
-        return { screen: screen, phase: S.phase, wave: S.wave, credits: S.credits, health: S.health, remaining: S.remaining,
+        return { screen: screen, stage: stage.id, phase: S.phase, wave: S.wave, credits: S.credits, health: S.health, remaining: S.remaining,
                  enemies: sim.aliveEnemies().length, towers: S.towers.length, projectiles: S.projectiles.length, time: S.time, speed: speed }
     }
     // Skip to a mid-match state: builds a sensible defence and starts at wave `w`.
-    function debugStart(w, layout) {
-        startMatch(); tutorial.keys = []
+    function debugStart(w, layout, stageIdx) {
+        startMatch(stageIdx || 0); tutorial.keys = []
         var buys = layout || { s1: "patch", s2: "firewall", s3: "firewall", s9: "traffic", s11: "scanner", s6: "backup", s5: "patch", s4: "patch" }
         sim.state.credits = 100000
         for (var s in buys) sim.placeTower(s, buys[s])
@@ -288,7 +307,7 @@ FocusScope {
         }
         board.sync(0.05); refresh()
         if (sim.state.phase === "won" || sim.state.phase === "lost") finishMatch(sim.state.phase === "won")
-        var info = debugInfo(); info.healthTrace = trace; info.best = save.best
+        var info = debugInfo(); info.healthTrace = trace; info.best = save.best; info.stage = stage.id
         return info
     }
     function debugAdvance(seconds) { var n = Math.round(seconds / 0.05); for (var i = 0; i < n; i++) { sim.step(0.05); handleEvents() } board.sync(0.05); refresh(); updateStatusLabels() }
@@ -298,6 +317,7 @@ FocusScope {
         id: board
         anchors.fill: parent
         sim: game.sim
+        map: game.stageMap
         reducedFx: game.reducedFx
         onTapped: function (x, z) { game.onBoardTapped(x, z) }
         onHovered: function (x, z) { game.onBoardHovered(x, z) }
@@ -315,6 +335,7 @@ FocusScope {
         onDone: { audio.play("click"); if (onDoneCallback) onDoneCallback() }
     }
     TitleOverlay { anchors.fill: parent; game: game; visible: game.screen === "title" }
+    StageSelectOverlay { anchors.fill: parent; game: game; visible: game.screen === "stages" }
     PauseOverlay { anchors.fill: parent; game: game; visible: game.screen === "paused" }
     EndOverlay { anchors.fill: parent; game: game; visible: game.screen === "won" || game.screen === "lost" }
 

@@ -10,7 +10,7 @@ Panel {
     readonly property string subject: key.indexOf("_") >= 0 ? key : ""
     signal done()
     visible: keys.length > 0
-    width: Math.min(parent.width - 40, 520); height: col.implicitHeight + 40
+    width: Math.min(parent.width - 24, 520); height: Math.min(col.implicitHeight + 40, parent.height - 16)
     anchors.centerIn: parent
     readonly property var towerKeys: ["patch", "firewall", "traffic", "scanner", "backup"]
     readonly property var enemyKeys: ["bug", "spam", "trojan", "stealth", "lock", "boss"]
@@ -22,7 +22,7 @@ Panel {
             TowerCard { visible: root.towerKeys.indexOf(root.key) >= 0; ttype: visible ? root.key : "patch"; scale: 0.8; anchors.verticalCenter: parent.verticalCenter }
             Text { text: root.towerKeys.indexOf(root.key) >= 0 ? Strings.t("tower_" + root.key) : root.enemyKeys.indexOf(root.key) >= 0 ? Strings.t("enemy_" + root.key) : Strings.t("howto")
                    color: "white"; font.pixelSize: 24; font.bold: true; anchors.verticalCenter: parent.verticalCenter } }
-        Text { width: parent.width; wrapMode: Text.WordWrap; color: "#dbe4f0"; font.pixelSize: 18; lineHeight: 1.2
+        Text { width: parent.width; wrapMode: Text.WordWrap; color: "#dbe4f0"; font.pixelSize: root.height < 300 ? 14 : 18; lineHeight: 1.2
                text: Strings.t("teach_" + root.key) + (root.towerKeys.indexOf(root.key) >= 0 ? "\n\n" + Strings.t("tower_" + root.key + "_desc") : root.enemyKeys.indexOf(root.key) >= 0 ? "\n\n" + Strings.t("enemy_" + root.key + "_desc") : "") }
         Row { spacing: 10; anchors.right: parent.right
             Text { text: (root.index + 1) + " / " + root.keys.length; color: "#8fa3c0"; font.pixelSize: 15; anchors.verticalCenter: parent.verticalCenter; visible: root.keys.length > 1 }

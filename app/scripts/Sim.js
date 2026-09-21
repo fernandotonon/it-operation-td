@@ -140,10 +140,11 @@ function createSim(defs) {
         emit("waveStart", { wave: S.wave })
         return { ok: true }
     }
-    function hpForWave(base) { return Math.round(base * (1 + T.hpGrowthPerWave * (S.wave - 1))) }
+    function hpForWave(base) { return Math.round(base * (T.hpMultiplier || 1) * (1 + T.hpGrowthPerWave * (S.wave - 1))) }
     function spawnEnemy(type, dist, hp) {
         var d = EN[type]
-        var e = { id: nextId++, type: type, dist: dist || 0, hp: hp || hpForWave(d.hp), maxHp: hp || hpForWave(d.hp),
+        var baseHp = hp || hpForWave(d.hp) * (d.boss ? (T.bossScale || 1) : 1)
+        var e = { id: nextId++, type: type, dist: dist || 0, hp: Math.round(baseHp), maxHp: Math.round(baseHp),
                   speed: d.speed, slow: 0, slowUntil: 0, concealed: !!d.concealed, revealedUntil: 0,
                   alive: true, x: 0, z: 0, dx: 1, dz: 0, nextAbilityAt: S.time + (d.disable ? d.disable.period * 0.5 : 0),
                   thresholdIndex: 0, radius: d.radius, seed: (e && e.id) || nextId }
