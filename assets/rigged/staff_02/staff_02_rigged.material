@@ -8,7 +8,7 @@ material qtmesh_gen3d_1_1789981827371_mesh_mat
 
 			texture_unit diffuse_map
 			{
-				texture qtmesh_gen3d_1_1789981827371_diffuse.png 11
+				texture QMEPaint_staff_02_rigged_1 0 PF_A8B8G8R8
 				colour_op_ex modulate src_texture src_diffuse
 				colour_op_multipass_fallback dest_colour zero
 			}
@@ -29,7 +29,7 @@ material qtmesh_gen3d_1_1789981827371_mesh_mat
 
 			texture_unit albedo
 			{
-				texture qtmesh_gen3d_1_1789981827371_diffuse.png 11
+				texture QMEPaint_staff_02_rigged_1 0 PF_A8B8G8R8
 				colour_op_ex modulate src_texture src_diffuse
 				colour_op_multipass_fallback dest_colour zero
 			}
