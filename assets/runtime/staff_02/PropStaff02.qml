@@ -12,11 +12,11 @@ Node {
 
     // Resources
     Texture {
-        id: qtmesh_gen3d_1_1789981827371_diffuse_png_texture
-        objectName: "qtmesh_gen3d_1_1789981827371_diffuse.png"
+        id: qmepaint_staff_02_rigged_1_png_texture
+        objectName: "QMEPaint_staff_02_rigged_1.png"
         generateMipmaps: true
         mipFilter: Texture.Linear
-        source: "maps/qtmesh_gen3d_1_1789981827371_diffuse.jpg"
+        source: "maps/QMEPaint_staff_02_rigged_1.jpg"
     }
     Texture {
         id: qtmesh_gen3d_1_1789981827371_roughness_png_texture
@@ -35,7 +35,7 @@ Node {
     PrincipledMaterial {
         id: qtmesh_gen3d_1_1789981827371_mesh_mat_material
         objectName: "qtmesh_gen3d_1_1789981827371_mesh_mat"
-        baseColorMap: qtmesh_gen3d_1_1789981827371_diffuse_png_texture
+        baseColorMap: qmepaint_staff_02_rigged_1_png_texture
         metalnessMap: qtmesh_gen3d_1_1789981827371_roughness_png_texture
         roughnessMap: qtmesh_gen3d_1_1789981827371_roughness_png_texture
         roughness: 1
@@ -152,8 +152,8 @@ Node {
 
     // Nodes:
     Node {
-        id: a5
-        objectName: "a5"
+        id: staff_02_rigged
+        objectName: "staff_02_rigged"
         Node {
             id: staff_02_trim
             objectName: "staff_02_trim"
@@ -419,8 +419,8 @@ Node {
             }
         }
         Model {
-            id: a5_mesh
-            objectName: "a5_mesh"
+            id: staff_02_rigged_mesh
+            objectName: "staff_02_rigged_mesh"
             source: "meshes/meshes_0__mesh.mesh"
             skin: skin
             materials: [
@@ -527,13 +527,13 @@ Node {
         objectName: "Idle"
         property real framesPerSecond: 1000
         startFrame: 0
-        endFrame: 2967
+        endFrame: 1834
         currentFrame: 0
         enabled: node.clip === "Idle"
         animations: TimelineAnimation {
-            duration: 2967
+            duration: 1834
             from: 0
-            to: 2967
+            to: 1834
             running: node.clip === "Idle"
             loops: Animation.Infinite
         }
@@ -546,6 +546,11 @@ Node {
             target: leftFoot
             property: "rotation"
             keyframeSource: "animations/leftFoot_rotation_1.qad"
+        }
+        KeyframeGroup {
+            target: neck
+            property: "rotation"
+            keyframeSource: "animations/neck_rotation_1.qad"
         }
         KeyframeGroup {
             target: rightLeg

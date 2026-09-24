@@ -57,7 +57,7 @@
 
   <script>
     // ---- loading screen ------------------------------------------------------------------------------
-    const LOADING = { expected: 70885720, sprites: [], build: "892287d72c3f" };
+    const LOADING = { expected: 70873242, sprites: [], build: "8eae45f001f0" };
     // English by default (like the game itself); ?lang=pt or ?lang=de selects the other loading-screen texts
     const lang = (new URLSearchParams(location.search).get("lang") || "en").toLowerCase();
     const pt = lang.startsWith("pt"), de = lang.startsWith("de");
@@ -187,7 +187,7 @@
         } catch (e) { gameFailed(e); }
     }
   </script>
-  <script src="operacao_ti.js?v=892287d72c3f"></script>
-  <script src="qtloader.js?v=892287d72c3f"></script>
+  <script src="operacao_ti.js?v=8eae45f001f0"></script>
+  <script src="qtloader.js?v=8eae45f001f0"></script>
 </body>
 </html>
