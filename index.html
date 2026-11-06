@@ -57,35 +57,116 @@
 
   <script>
     // ---- loading screen ------------------------------------------------------------------------------
-    const LOADING = { expected: 70873242, sprites: [], build: "8eae45f001f0" };
-    // English by default (like the game itself); ?lang=pt or ?lang=de selects the other loading-screen texts
-    const lang = (new URLSearchParams(location.search).get("lang") || "en").toLowerCase();
-    const pt = lang.startsWith("pt"), de = lang.startsWith("de");
-    const T = pt ? {
-        down: (p, a, b) => `Baixando o jogo… ${p}% (${a} de ${b} MB)`, prep: "Ligando o datacenter…", start: "Quase lá…",
-        fail: "Não foi possível carregar o jogo. Verifique a conexão e tente de novo.",
-        tips: ["Toque em um ponto azul ao lado da rota e escolha uma torre.", "O círculo mostra o alcance antes de gastar créditos.",
-               "Controlador de Tráfego: lentidão de até 50%, nunca acumula.", "Pacotes Ocultos só aparecem perto de um Scanner de Segurança.",
-               "Pacote Trojan solta 3 Bugs ao ser derrotado: tenha dano em área por perto.", "Reboot de Emergência (R): 3 s offline, depois turbo e sem bloqueios.",
-               "Ransomware bloqueia uma torre por 4 s; o Reboot limpa o bloqueio.", "A onda 15 é o Deploy de Sexta. Boa sorte, equipe!",
-               "Na segunda visita o jogo abre na hora: os arquivos ficam guardados no navegador."]
-    } : de ? {
-        down: (p, a, b) => `Spiel wird geladen… ${p}% (${a} von ${b} MB)`, prep: "Rechenzentrum wird hochgefahren…", start: "Fast fertig…",
-        fail: "Das Spiel konnte nicht geladen werden. Prüfe die Verbindung und versuche es noch einmal.",
-        tips: ["Tippe auf einen blauen Platz neben der Route und wähle einen Turm.", "Der Kreis zeigt die Reichweite, bevor du Credits ausgibst.",
-               "Traffic-Controller: bis zu 50 % Verlangsamung, stapelt nie.", "Tarnpakete zeigen sich nur nahe einem Sicherheits-Scanner.",
-               "Ein Trojaner-Paket setzt beim Besiegen 3 Bugs frei: halte Flächenschaden bereit.", "Notfall-Neustart (R): 3 s offline, dann Turbo und keine Sperren.",
-               "Ransomware sperrt einen Turm für 4 s; ein Neustart hebt die Sperre auf.", "Welle 15 ist das Freitags-Deployment. Viel Glück, Team!",
-               "Beim zweiten Besuch startet das Spiel sofort: die Dateien bleiben im Browser gespeichert."]
-    } : {
-        down: (p, a, b) => `Downloading the game… ${p}% (${a} of ${b} MB)`, prep: "Powering up the datacenter…", start: "Almost there…",
-        fail: "The game could not be loaded. Check your connection and try again.",
-        tips: ["Tap a blue socket beside the route and pick a tower.", "The circle shows the range before you spend credits.",
-               "Traffic Controller: up to 50% slow, never stacks.", "Stealth Packets only show up near a Security Scanner.",
-               "A Trojan Package releases 3 Bugs when defeated: keep area damage nearby.", "Emergency Reboot (R): 3 s offline, then a speed boost and no locks.",
-               "Ransomware locks a tower for 4 s; a Reboot clears it.", "Wave 15 is the Friday Deployment. Good luck, team!",
-               "The second visit starts instantly: the files stay cached in your browser."]
+    const LOADING = { expected: 70998566, sprites: [], build: "7d3794b51e8b" };
+    // Language: ?qtmesh_lang= (QtMesh Games) or ?lang=. Forwarded to the game as --lang=.
+    // Same codes and matching rules as the in-game tables (pt, pt-BR and pt_BR all work).
+    const pageParams = new URLSearchParams(location.search);
+    const rawLang = pageParams.get("qtmesh_lang") || pageParams.get("lang") || "";
+    function matchLang(raw) {
+        const order = ["en", "pt_BR", "de", "ru", "fr", "pl", "tr", "es", "it"];
+        const r = String(raw || "").trim().replace(/-/g, "_").split(".")[0].split("@")[0];
+        if (!r) return "en";
+        const low = r.toLowerCase();
+        for (const c of order) if (c.toLowerCase() === low) return c;
+        const base = low.split("_")[0];
+        for (const c of order) if (c.toLowerCase().split("_")[0] === base) return c;
+        return "en";
+    }
+    const langCode = matchLang(rawLang);
+    const LOADING_TEXT = {
+        en: {
+            down: (p, a, b) => `Downloading the game… ${p}% (${a} of ${b} MB)`, prep: "Powering up the datacenter…", start: "Almost there…",
+            fail: "The game could not be loaded. Check your connection and try again.",
+            isolate: "The browser did not allow isolation (SharedArrayBuffer). Try reloading, or another browser.",
+            tips: ["Tap a blue socket beside the route and pick a tower.", "The circle shows the range before you spend credits.",
+                   "Traffic Controller: up to 50% slow, never stacks.", "Stealth Packets only show up near a Security Scanner.",
+                   "A Trojan Package releases 3 Bugs when defeated: keep area damage nearby.", "Emergency Reboot (R): 3 s offline, then a speed boost and no locks.",
+                   "Ransomware locks a tower for 4 s; a Reboot clears it.", "Wave 15 is the Friday Deployment. Good luck, team!",
+                   "The second visit starts instantly: the files stay cached in your browser."]
+        },
+        pt_BR: {
+            down: (p, a, b) => `Baixando o jogo… ${p}% (${a} de ${b} MB)`, prep: "Ligando o datacenter…", start: "Quase lá…",
+            fail: "Não foi possível carregar o jogo. Verifique a conexão e tente de novo.",
+            isolate: "O navegador não permitiu o isolamento (SharedArrayBuffer). Tente recarregar, ou outro navegador.",
+            tips: ["Toque em um ponto azul ao lado da rota e escolha uma torre.", "O círculo mostra o alcance antes de gastar créditos.",
+                   "Controlador de Tráfego: lentidão de até 50%, nunca acumula.", "Pacotes Ocultos só aparecem perto de um Scanner de Segurança.",
+                   "Pacote Trojan solta 3 Bugs ao ser derrotado: tenha dano em área por perto.", "Reboot de Emergência (R): 3 s offline, depois turbo e sem bloqueios.",
+                   "Ransomware bloqueia uma torre por 4 s; o Reboot limpa o bloqueio.", "A onda 15 é o Deploy de Sexta. Boa sorte, equipe!",
+                   "Na segunda visita o jogo abre na hora: os arquivos ficam guardados no navegador."]
+        },
+        de: {
+            down: (p, a, b) => `Spiel wird geladen… ${p}% (${a} von ${b} MB)`, prep: "Rechenzentrum wird hochgefahren…", start: "Fast fertig…",
+            fail: "Das Spiel konnte nicht geladen werden. Prüfe die Verbindung und versuche es noch einmal.",
+            isolate: "Der Browser hat die Isolation (SharedArrayBuffer) nicht erlaubt. Lade neu oder nutze einen anderen Browser.",
+            tips: ["Tippe auf einen blauen Platz neben der Route und wähle einen Turm.", "Der Kreis zeigt die Reichweite, bevor du Credits ausgibst.",
+                   "Traffic-Controller: bis zu 50 % Verlangsamung, stapelt nie.", "Tarnpakete zeigen sich nur nahe einem Sicherheits-Scanner.",
+                   "Ein Trojaner-Paket setzt beim Besiegen 3 Bugs frei: halte Flächenschaden bereit.", "Notfall-Neustart (R): 3 s offline, dann Turbo und keine Sperren.",
+                   "Ransomware sperrt einen Turm für 4 s; ein Neustart hebt die Sperre auf.", "Welle 15 ist das Freitags-Deployment. Viel Glück, Team!",
+                   "Beim zweiten Besuch startet das Spiel sofort: die Dateien bleiben im Browser gespeichert."]
+        },
+        ru: {
+            down: (p, a, b) => `Загрузка игры… ${p}% (${a} из ${b} МБ)`, prep: "Включаем дата-центр…", start: "Почти готово…",
+            fail: "Не удалось загрузить игру. Проверьте соединение и попробуйте снова.",
+            isolate: "Браузер не разрешил изоляцию (SharedArrayBuffer). Обновите страницу или откройте другой браузер.",
+            tips: ["Нажми на синюю точку у маршрута и выбери башню.", "Круг показывает дальность до траты кредитов.",
+                   "Контроллер трафика: замедление до 50%, не складывается.", "Скрытые пакеты видны только у Сканера безопасности.",
+                   "Троянский пакет выпускает 3 Бага: держи рядом урон по области.", "Аварийный ребут (R): 3 с офлайн, потом ускорение и без блоков.",
+                   "Вымогатель блокирует башню на 4 с; ребут снимает блок.", "Волна 15 — Пятничный деплой. Удачи, команда!",
+                   "Со второго визита игра открывается сразу: файлы остаются в браузере."]
+        },
+        fr: {
+            down: (p, a, b) => `Téléchargement du jeu… ${p} % (${a} sur ${b} Mo)`, prep: "Allumage du datacenter…", start: "Presque prêt…",
+            fail: "Le jeu n'a pas pu être chargé. Vérifie la connexion et réessaie.",
+            isolate: "Le navigateur n'a pas autorisé l'isolation (SharedArrayBuffer). Recharge la page, ou essaie un autre navigateur.",
+            tips: ["Touche un emplacement bleu le long du parcours et choisis une tour.", "Le cercle montre la portée avant de dépenser des crédits.",
+                   "Contrôleur de trafic : jusqu'à 50 % de ralentissement, jamais cumulé.", "Les paquets furtifs n'apparaissent que près d'un Scanner de sécurité.",
+                   "Un paquet troyen libère 3 Bugs : garde des dégâts de zone à proximité.", "Reboot d'urgence (R) : 3 s hors ligne, puis un boost et plus de blocage.",
+                   "Le ransomware bloque une tour 4 s ; un Reboot lève le blocage.", "La vague 15 est le Déploiement du vendredi. Bonne chance, l'équipe !",
+                   "La deuxième visite démarre tout de suite : les fichiers restent dans le navigateur."]
+        },
+        pl: {
+            down: (p, a, b) => `Pobieranie gry… ${p}% (${a} z ${b} MB)`, prep: "Włączanie centrum danych…", start: "Prawie gotowe…",
+            fail: "Nie udało się wczytać gry. Sprawdź połączenie i spróbuj ponownie.",
+            isolate: "Przeglądarka nie pozwoliła na izolację (SharedArrayBuffer). Odśwież stronę albo użyj innej przeglądarki.",
+            tips: ["Stuknij niebieskie pole przy trasie i wybierz wieżę.", "Okrąg pokazuje zasięg, zanim wydasz kredyty.",
+                   "Kontroler ruchu: do 50% spowolnienia, nigdy się nie kumuluje.", "Ukryte pakiety widać tylko przy Skanerze bezpieczeństwa.",
+                   "Pakiet trojana wypuszcza 3 Bugi: trzymaj w pobliżu obrażenia obszarowe.", "Restart awaryjny (R): 3 s offline, potem turbo i bez blokad.",
+                   "Ransomware blokuje wieżę na 4 s; restart zdejmuje blokadę.", "Fala 15 to Piątkowy deploy. Powodzenia, ekipo!",
+                   "Przy drugiej wizycie gra startuje od razu: pliki zostają w przeglądarce."]
+        },
+        tr: {
+            down: (p, a, b) => `Oyun indiriliyor… %${p} (${b} MB içinden ${a})`, prep: "Veri merkezi açılıyor…", start: "Neredeyse bitti…",
+            fail: "Oyun yüklenemedi. Bağlantını kontrol edip yeniden dene.",
+            isolate: "Tarayıcı izolasyona izin vermedi (SharedArrayBuffer). Sayfayı yenile ya da başka bir tarayıcı dene.",
+            tips: ["Rotanın yanındaki mavi bir yuvaya dokun ve bir kule seç.", "Çember, kredi harcamadan menzili gösterir.",
+                   "Trafik denetleyici: en fazla %50 yavaşlatma, üst üste binmez.", "Gizli paketler yalnızca bir Güvenlik tarayıcısının yanında görünür.",
+                   "Truva paketi 3 Bug bırakır: yakında alan hasarı bulundur.", "Acil reboot (R): 3 sn çevrimdışı, sonra hız ve kilit yok.",
+                   "Fidye kilidi bir kuleyi 4 sn kilitler; reboot kilidi kaldırır.", "15. dalga Cuma dağıtımıdır. İyi şanslar, ekip!",
+                   "İkinci ziyarette oyun hemen açılır: dosyalar tarayıcıda kalır."]
+        },
+        es: {
+            down: (p, a, b) => `Descargando el juego… ${p}% (${a} de ${b} MB)`, prep: "Encendiendo el datacenter…", start: "Casi listo…",
+            fail: "No se pudo cargar el juego. Comprueba la conexión e inténtalo de nuevo.",
+            isolate: "El navegador no permitió el aislamiento (SharedArrayBuffer). Recarga la página o prueba otro navegador.",
+            tips: ["Toca un punto azul junto a la ruta y elige una torre.", "El círculo muestra el alcance antes de gastar créditos.",
+                   "Controlador de tráfico: hasta un 50 % de ralentización, nunca se acumula.", "Los paquetes ocultos solo aparecen cerca de un Escáner de seguridad.",
+                   "Un paquete troyano suelta 3 Bugs: ten daño en área cerca.", "Reinicio de emergencia (R): 3 s fuera de línea, luego impulso y sin bloqueos.",
+                   "El ransomware bloquea una torre 4 s; un Reinicio quita el bloqueo.", "La oleada 15 es el Despliegue del viernes. ¡Suerte, equipo!",
+                   "La segunda visita arranca al momento: los archivos se quedan en el navegador."]
+        },
+        it: {
+            down: (p, a, b) => `Download del gioco… ${p}% (${a} di ${b} MB)`, prep: "Accensione del datacenter…", start: "Ci siamo quasi…",
+            fail: "Impossibile caricare il gioco. Controlla la connessione e riprova.",
+            isolate: "Il browser non ha consentito l'isolamento (SharedArrayBuffer). Ricarica la pagina oppure prova un altro browser.",
+            tips: ["Tocca un punto blu lungo il percorso e scegli una torre.", "Il cerchio mostra la gittata prima di spendere crediti.",
+                   "Controllore del traffico: fino al 50% di rallentamento, non si accumula.", "I pacchetti nascosti compaiono solo vicino a uno Scanner di sicurezza.",
+                   "Un pacchetto trojan libera 3 Bug: tieni il danno ad area vicino.", "Riavvio di emergenza (R): 3 s offline, poi una spinta e niente blocchi.",
+                   "Il ransomware blocca una torre per 4 s; un Riavvio toglie il blocco.", "L'ondata 15 è il Deploy del venerdì. Buona fortuna, squadra!",
+                   "Alla seconda visita il gioco parte subito: i file restano nel browser."]
+        }
     };
+    const T = LOADING_TEXT[langCode];
+
     const $ = (id) => document.getElementById(id);
     if (LOADING.sprites.length) $("ld-sprite").style.backgroundImage = `url(${LOADING.sprites[Math.floor(Math.random() * LOADING.sprites.length)]})`; else $("ld-sprite").style.display = "none";
     let tipIndex = Math.floor(Math.random() * T.tips.length);
@@ -165,13 +246,13 @@
         // adds them and reloads the page once; do not start (and download) Qt until that has happened.
         if (!window.crossOriginIsolated) {
             $("ld-status").textContent = T.prep;
-            setTimeout(() => { if (!window.crossOriginIsolated) gameFailed(new Error(pt ? "O navegador não permitiu o isolamento (SharedArrayBuffer). Tente recarregar, ou outro navegador." : de ? "Der Browser hat die Isolation (SharedArrayBuffer) nicht erlaubt. Lade neu oder nutze einen anderen Browser." : "The browser did not allow isolation (SharedArrayBuffer). Try reloading, or another browser.")); }, 15000);
+            setTimeout(() => { if (!window.crossOriginIsolated) gameFailed(new Error(T.isolate)); }, 15000);
             return;
         }
         try {
             const writePack = await loadPack();
             await qtLoad({
-                arguments: (new URLSearchParams(location.search).get("args") || "").split(" ").filter(Boolean),
+                arguments: (() => { const a = (pageParams.get("args") || "").split(" ").filter(Boolean); if (rawLang && !a.some(x => x.startsWith("--lang="))) a.push("--lang=" + langCode); return a; })(),
                 noImageDecoding: true,                 // Qt decodes images itself; browser-side decoding of hundreds of PNGs stalls startup
                 noAudioDecoding: true,
                 preRun: [writePack],
@@ -187,7 +268,7 @@
         } catch (e) { gameFailed(e); }
     }
   </script>
-  <script src="operacao_ti.js?v=8eae45f001f0"></script>
-  <script src="qtloader.js?v=8eae45f001f0"></script>
+  <script src="operacao_ti.js?v=7d3794b51e8b"></script>
+  <script src="qtloader.js?v=7d3794b51e8b"></script>
 </body>
 </html>
