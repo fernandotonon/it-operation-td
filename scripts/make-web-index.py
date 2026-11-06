@@ -7,6 +7,7 @@
   and assets/sprites/*.png, written by make-web-pack.py / build-wasm.sh)
 * a build id (hash of the wasm + asset manifest) so the service worker caches per build
 * program arguments from the URL: index.html?args=--autotest%20--no-models
+* language from ?lang= or ?qtmesh_lang= (QtMesh Games), forwarded to the game as --lang=
 """
 import glob
 import hashlib

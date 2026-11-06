@@ -6,7 +6,8 @@ import QtQuick
 Item {
     id: save
     // browsers start with reduced effects (no shadows / MSAA); the settings panel turns them back on
-    property var settings: ({ language: "en", volume: 0.8, muted: false, reducedFx: Qt.platform.os === "wasm", tutorialSeen: [] })
+    // language "" is Auto. languageSet marks an explicit pick; an old untouched "en" stays Auto.
+    property var settings: ({ language: "", languageSet: false, volume: 0.8, muted: false, reducedFx: Qt.platform.os === "wasm", tutorialSeen: [] })
     property var best: ({ bestWave: 0, wins: 0, fastestWin: 0, matches: 0 })
     // stage progress: unlocked = number of playable stages; stages[id] = { wins, bestHealth, fastest }
     property var progress: ({ unlocked: 1, stages: {} })

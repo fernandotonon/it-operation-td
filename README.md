@@ -9,7 +9,7 @@ equipamentos e técnicos gerados a partir das imagens de referência *Operação
 Sexta-feira, 17h. A equipe de TI já ia embora quando o painel de monitoramento acendeu. Coloque
 Estações de Patch, Firewalls, Controladores de Tráfego, Scanners de Segurança e Estações de Backup ao
 lado da rota de cabos, sobreviva a quinze ondas de ameaças de desenho animado e ao chefe final, o
-**Deploy de Sexta**. Inglês por padrão; português (BR) e alemão nos ajustes. Sem internet, sem contas, sem anúncios.
+**Deploy de Sexta**. Idioma: Automático (o QtMesh Games, depois o idioma do sistema) ou uma escolha nos ajustes — English, Português (Brasil), Deutsch, Русский, Français, Polski, Türkçe, Español, Italiano. Sem internet, sem contas, sem anúncios.
 
 ![Partida em andamento](docs/screenshots/match.png)
 

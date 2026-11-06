@@ -11,6 +11,8 @@ import "config/tuning.js" as Tuning
 FocusScope {
     id: game
     signal quitRequested()
+    // QTMESH_LANG from the native launcher. The web build passes the same code as --lang=.
+    property string launcherEnvLang: ""
 
     // ---- state mirrored from the simulation for QML bindings ----------------------------------------
     property string screen: "title"            // title | playing | paused | won | lost
@@ -58,7 +60,7 @@ FocusScope {
     SaveSystem { id: save }
     AudioManager { id: audio; volume: save.settings.volume; muted: save.settings.muted }
     Component.onCompleted: {
-        save.load(); Strings.lang = save.settings.language || "en"; refresh()
+        save.load(); applyLanguage(); refresh()
         if (appArgs.indexOf("--no-models") >= 0) board.useModels = false
         Qt.callLater(function () {
             console.log("OperacaoTI: save backend", save.backend, "audio bridge", audio.web ? "WebAudio" : "Clayground.Sound", "reducedFx", reducedFx, "platform", Qt.platform.os, "language", Strings.lang)
@@ -66,7 +68,7 @@ FocusScope {
         })
     }
     // settings loaded after this object completed (WebAssembly ordering): keep the language in sync
-    Connections { target: save; function onSettingsChanged() { if (save.settings.language && Strings.lang !== save.settings.language) Strings.lang = save.settings.language } }
+    Connections { target: save; function onSettingsChanged() { applyLanguage() } }
 
     // ---- clock: everything simulated goes through sim.step, so pause and speed are consistent -----
     FrameAnimation {
@@ -243,7 +245,23 @@ FocusScope {
     }
 
     // ---- settings --------------------------------------------------------------------------------------
-    function setLanguage(l) { Strings.lang = l; save.writeSettings({ language: l }) }
+    function launcherLang() {
+        var args = Qt.application.arguments || []
+        for (var i = 0; i < args.length; i++) {
+            var a = "" + args[i]
+            if (a.indexOf("--lang=") === 0) return a.substring(7)
+        }
+        return launcherEnvLang || ""
+    }
+    function applyLanguage() {
+        Strings.apply(Strings.storedChoice(save.settings), launcherLang(), Qt.locale().name)
+    }
+    function setLanguage(l) {
+        var choice = l === "" ? "" : Strings.matchCode(l)
+        if (l !== "" && choice === "") return
+        save.writeSettings({ language: choice, languageSet: true })
+        applyLanguage()
+    }
     function setVolume(v) { save.writeSettings({ volume: v }) }
     function setMuted(m) { save.writeSettings({ muted: m }) }
     function setReducedFx(r) { save.writeSettings({ reducedFx: r }) }

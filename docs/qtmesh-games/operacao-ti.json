@@ -17,6 +17,7 @@
   "achievements": ["OT_FIRST_LAUNCH", "OT_FIRST_WIN", "OT_FLAWLESS"],
   "stats": ["OT_MATCHES_PLAYED", "OT_WAVES_CLEARED", "OT_THREATS_RESOLVED"],
   "allowMultipleInstances": false,
+  "languages": ["en", "pt-BR", "de", "ru", "fr", "pl", "tr", "es", "it"],
   "links": {
     "source": "https://github.com/fernandotonon/it-operation-td",
     "editor": "https://github.com/fernandotonon/QtMeshEditor"

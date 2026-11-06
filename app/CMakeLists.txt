@@ -26,6 +26,7 @@ clay_app(operacao_ti
     SOURCES
         src/savestore.h src/savestore.cpp
         src/webaudio.h src/webaudio.cpp
+        src/launchlang.h src/launchlang.cpp
 
     LINK_LIBS
         Qt::Core

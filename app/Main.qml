@@ -10,7 +10,8 @@ Window {
     minimumHeight: 480
     visible: true
     color: "#0f1a2e"
-    title: "Operação TI: Defenda o Datacenter"
+    title: Strings.t("title")
+    LaunchEnv { id: launchEnv }
 
     // Clayground convention: every clay_app is a headless ctest smoke test (QT_QPA_PLATFORM=minimal);
     // loading without warnings is the pass criterion, so quit right after the scene is up.
@@ -23,7 +24,7 @@ Window {
         focus: true
         sourceComponent: win.minimal ? minimalComp : gameComp
     }
-    Component { id: gameComp; TdGame { anchors.fill: parent; focus: true; onQuitRequested: Qt.quit() } }
+    Component { id: gameComp; TdGame { anchors.fill: parent; focus: true; launcherEnvLang: launchEnv.lang; onQuitRequested: Qt.quit() } }
     Component { id: minimalComp; Text { anchors.centerIn: parent; text: "Operação TI - minimal"; color: "white"; font.pixelSize: 40
                                         Component.onCompleted: console.log("OperacaoTI: minimal item ready") } }
 }
