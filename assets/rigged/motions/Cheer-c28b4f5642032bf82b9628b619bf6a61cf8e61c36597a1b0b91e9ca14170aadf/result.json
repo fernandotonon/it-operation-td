@@ -1,0 +1,27 @@
+{
+  "device": "onnxruntime",
+  "diffusion_steps": 100,
+  "files": [
+    "/Users/fernandotonon/Library/Application Support/QtMeshEditor/QtMeshEditor/generated_motion/kimodo_1794634004269/motion_00.npz"
+  ],
+  "format": "qtmesh-motion-interchange",
+  "format_version": 1,
+  "fps": 30,
+  "joints": 77,
+  "model": "kimodo-soma-rp-v1.2",
+  "num_samples": 1,
+  "postprocess": true,
+  "root_motion": false,
+  "runtime": "native",
+  "seconds": 18.899,
+  "seed": 42,
+  "segments": [
+    {
+      "duration": 4,
+      "text": "A person celebrates in place with both arms raised overhead. Palms face each other beside the head, thumbs point backward, wrists stay untwisted and natural. Then lower the arms back to a relaxed standing pose. No walking."
+    }
+  ],
+  "source": "kimodo",
+  "text_conditioning": "prompt",
+  "text_encoder": "llama.cpp Q8_0 (Llama-3-LLM2Vec-8B-Kimodo-TextEncoder)"
+}

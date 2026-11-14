@@ -1,0 +1,141 @@
+{
+  "backend": "kimodo",
+  "clips": [
+    {
+      "excludedSource": [
+        "HeadEnd (end)",
+        "Jaw (facial)",
+        "LeftEye (facial)",
+        "RightEye (facial)",
+        "LeftHandThumbEnd (end)",
+        "LeftHandIndex1 (metacarpal)",
+        "LeftHandIndexEnd (end)",
+        "LeftHandMiddle1 (metacarpal)",
+        "LeftHandMiddleEnd (end)",
+        "LeftHandRing1 (metacarpal)",
+        "LeftHandRingEnd (end)",
+        "LeftHandPinky1 (metacarpal)",
+        "LeftHandPinkyEnd (end)",
+        "RightHandThumbEnd (end)",
+        "RightHandIndex1 (metacarpal)",
+        "RightHandIndexEnd (end)",
+        "RightHandMiddle1 (metacarpal)",
+        "RightHandMiddleEnd (end)",
+        "RightHandRing1 (metacarpal)",
+        "RightHandRingEnd (end)",
+        "RightHandPinky1 (metacarpal)",
+        "RightHandPinkyEnd (end)",
+        "LeftToeEnd (end)",
+        "RightToeEnd (end)"
+      ],
+      "fingerBones": 15,
+      "frames": 184,
+      "hands": "",
+      "heightScale": 0.45741018652915955,
+      "inferredFingers": [
+        "LeftHandThumb1 -> joint_10",
+        "LeftHandThumb2 -> joint_11",
+        "LeftHandThumb3 -> joint_12",
+        "LeftHandIndex2 -> joint_13",
+        "LeftHandIndex3 -> joint_14",
+        "LeftHandIndex4 -> joint_15",
+        "LeftHandMiddle2 -> joint_16",
+        "LeftHandMiddle3 -> joint_17",
+        "LeftHandMiddle4 -> joint_18",
+        "LeftHandRing2 -> joint_19",
+        "LeftHandRing3 -> joint_20",
+        "LeftHandRing4 -> joint_21",
+        "LeftHandPinky2 -> joint_22",
+        "LeftHandPinky3 -> joint_23",
+        "LeftHandPinky4 -> joint_24"
+      ],
+      "length": 6.099999904632568,
+      "mapVersion": "somaskel77-standard-v1",
+      "mappedBones": 35,
+      "name": "Typing",
+      "rootBone": "Hips",
+      "unmappedSource": [
+        "Neck2",
+        "RightHandThumb1",
+        "RightHandThumb2",
+        "RightHandThumb3",
+        "RightHandIndex2",
+        "RightHandIndex3",
+        "RightHandIndex4",
+        "RightHandMiddle2",
+        "RightHandMiddle3",
+        "RightHandMiddle4",
+        "RightHandRing2",
+        "RightHandRing3",
+        "RightHandRing4",
+        "RightHandPinky2",
+        "RightHandPinky3",
+        "RightHandPinky4",
+        "LeftToeBase",
+        "RightToeBase"
+      ],
+      "unmappedTarget": [
+        "skeleton",
+        "joint_29",
+        "staff_06_trim",
+        "joint_30",
+        "joint_31",
+        "joint_47",
+        "joint_51",
+        "joint_32",
+        "joint_35",
+        "joint_38",
+        "joint_41",
+        "joint_33",
+        "joint_36",
+        "joint_39",
+        "joint_42",
+        "joint_34",
+        "joint_37",
+        "joint_40",
+        "joint_43"
+      ]
+    }
+  ],
+  "mapVersion": "somaskel77-standard-v1",
+  "output": "/Users/fernandotonon/it-operation-td/assets/rigged/staff_06/work/Typing.glb",
+  "source": {
+    "device": "onnxruntime",
+    "diffusion_steps": 100,
+    "files": [
+      "/Users/fernandotonon/Library/Application Support/QtMeshEditor/QtMeshEditor/generated_motion/kimodo_1794633914588/motion_00.npz"
+    ],
+    "format": "qtmesh-motion-interchange",
+    "format_version": 1,
+    "fps": 30,
+    "joints": 77,
+    "loop_mode": "auto",
+    "loops": [
+      {
+        "cycleCostDeg": 10.583747171435878,
+        "cycleHeightCm": 22.114180028438568,
+        "cycleRootDeg": 14.468007747193397,
+        "cycleStartFrame": 56,
+        "method": "regenerate",
+        "periodFrames": 183,
+        "seconds": 6.1
+      }
+    ],
+    "model": "kimodo-soma-rp-v1.2",
+    "num_samples": 1,
+    "postprocess": true,
+    "root_motion": false,
+    "runtime": "native",
+    "seconds": 81.294,
+    "seed": 42,
+    "segments": [
+      {
+        "duration": 6,
+        "text": "A human sits at a desk working on a computer, leaning slightly forward and typing on a keyboard with both hands, with small finger and wrist movements. Remain seated in place."
+      }
+    ],
+    "source": "kimodo",
+    "text_conditioning": "prompt",
+    "text_encoder": "llama.cpp Q8_0 (Llama-3-LLM2Vec-8B-Kimodo-TextEncoder)"
+  }
+}

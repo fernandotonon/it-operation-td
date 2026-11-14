@@ -1,0 +1,39 @@
+{
+  "device": "onnxruntime",
+  "diffusion_steps": 100,
+  "files": [
+    "/Users/fernandotonon/Library/Application Support/QtMeshEditor/QtMeshEditor/generated_motion/kimodo_1794633872622/motion_00.npz"
+  ],
+  "format": "qtmesh-motion-interchange",
+  "format_version": 1,
+  "fps": 30,
+  "joints": 77,
+  "loop_mode": "auto",
+  "loops": [
+    {
+      "cycleCostDeg": 0.38417288077536876,
+      "cycleHeightCm": 0.09618401527404785,
+      "cycleRootDeg": 0.5945614086674121,
+      "cycleStartFrame": 91,
+      "method": "cut",
+      "periodFrames": 120,
+      "seconds": 4
+    }
+  ],
+  "model": "kimodo-soma-rp-v1.2",
+  "num_samples": 1,
+  "postprocess": true,
+  "root_motion": false,
+  "runtime": "native",
+  "seconds": 33.033,
+  "seed": 42,
+  "segments": [
+    {
+      "duration": 4,
+      "text": "A person stands idle in place, breathing gently with a relaxed posture, arms resting naturally at their sides. No walking."
+    }
+  ],
+  "source": "kimodo",
+  "text_conditioning": "prompt",
+  "text_encoder": "llama.cpp Q8_0 (Llama-3-LLM2Vec-8B-Kimodo-TextEncoder)"
+}

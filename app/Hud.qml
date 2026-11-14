@@ -22,10 +22,12 @@ Item {
             id: topRow
             anchors.verticalCenter: parent.verticalCenter; x: 12; spacing: hud.compact ? 12 : 22
             Row { spacing: 8; anchors.verticalCenter: parent.verticalCenter
-                Image { source: Qt.resolvedUrl("../assets/source-images/coin.png"); width: 34 * hud.k; height: 34 * hud.k; fillMode: Image.PreserveAspectFit; anchors.verticalCenter: parent.verticalCenter; mipmap: true }
+                Rectangle { width: 30 * hud.k; height: width; radius: width / 2; color: "#443d2d"; border.color: "#efc56e"; anchors.verticalCenter: parent.verticalCenter
+                    Text { anchors.centerIn: parent; text: "●"; color: "#efc56e"; font.pixelSize: 20 * hud.k }
+                }
                 Text { text: hud.v, game ? game.credits : 0; color: "#ffe9a8"; font.pixelSize: 26 * hud.k; font.bold: true; anchors.verticalCenter: parent.verticalCenter } }
             Row { spacing: 8; anchors.verticalCenter: parent.verticalCenter
-                Image { source: Qt.resolvedUrl("../assets/source-images/heart.png"); width: 34 * hud.k; height: 34 * hud.k; fillMode: Image.PreserveAspectFit; anchors.verticalCenter: parent.verticalCenter; mipmap: true }
+                Text { text: "♥"; color: "#ff8395"; font.pixelSize: 31 * hud.k; anchors.verticalCenter: parent.verticalCenter }
                 Text { text: hud.v, game ? game.health : 0; color: game && game.health <= 5 ? "#ff8a8a" : "white"; font.pixelSize: 26 * hud.k; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
                 Text { visible: !hud.compact; text: Strings.t("health"); color: "#8fa3c0"; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter; width: 70; wrapMode: Text.WordWrap } }
             Column { anchors.verticalCenter: parent.verticalCenter
@@ -43,6 +45,32 @@ Item {
         BigButton { text: "❚❚"; sub: hud.compact ? "" : Strings.t("pause"); tone: "#4a5568"; implicitWidth: 56 * hud.k + 8; implicitHeight: hud.compact ? 46 : 52; onClicked: game.togglePause() }
     }
 
+    // Always-visible operation context and an honest boss health meter.
+    Column {
+        x: 14; y: hud.compact ? 61 : 86; spacing: 5
+        Text { text: game ? Strings.t("stage_" + game.stage.id) : ""; color: "#c7dfef"; font.pixelSize: hud.compact ? 13 : 17; font.bold: true }
+        Rectangle { width: hud.compact ? 155 : 225; height: 3; color: "#34495f"
+            Rectangle { height: parent.height; width: parent.width * (game ? game.wave / game.waveCount : 0); color: "#42d9d0" }
+        }
+        Text { text: Strings.t("medalGoal"); visible: !hud.compact; color: "#809bb4"; font.pixelSize: 12 }
+    }
+    Panel {
+        visible: hud.playing && game.bossMaxHealth > 0
+        anchors.horizontalCenter: parent.horizontalCenter; y: hud.compact ? 62 : 85
+        width: Math.min(parent.width * 0.36, 400); height: 53
+        Column { anchors.fill: parent; anchors.margins: 9; spacing: 5
+            Text { text: Strings.t("enemy_boss"); color: "#ffb3a2"; font.pixelSize: 13; font.bold: true }
+            Rectangle { width: parent.width; height: 8; radius: 4; color: "#462b39"
+                Rectangle { width: parent.width * (game && game.bossMaxHealth ? game.bossHealth / game.bossMaxHealth : 0); height: 8; radius: 4; color: "#f27761" }
+            }
+        }
+    }
+    Panel {
+        visible: hud.playing && game.waveAnnouncement !== ""
+        anchors.horizontalCenter: parent.horizontalCenter; y: parent.height * 0.23
+        width: 260; height: 58; border.color: "#42d9d0"
+        Text { anchors.centerIn: parent; text: game ? game.waveAnnouncement : ""; font.pixelSize: 25; font.bold: true; color: "#c9fff3" }
+    }
     // ---- wave card (build phase) -----------------------------------------------------------------
     Panel {
         id: waveCard
@@ -79,6 +107,24 @@ Item {
             Rectangle { width: parent.width; height: 6; radius: 3; color: "#1f2838"
                 Rectangle { width: parent.width * (game && !game.rebootReady ? 1 - game.rebootLeft / 45 : 1); height: parent.height; radius: 3; color: "#2f7ff2" } }
         }
+    }
+    Panel {
+        visible: hud.playing && game.phase === "wave"
+        anchors.right: parent.right; anchors.rightMargin: 8; anchors.bottom: parent.bottom
+        anchors.bottomMargin: hud.compact ? 80 : 102
+        width: hud.compact ? 170 : 220; height: hud.compact ? 64 : 76
+        BigButton {
+            anchors.fill: parent; anchors.margins: 8
+            text: Strings.t("quarantine"); sub: game && game.quarantineMode ? Strings.t("cancel") : game && game.quarantineLeft > 0 ? Math.ceil(game.quarantineLeft) + " s" : "[Q] · " + Strings.t("ready")
+            tone: "#8872cf"; checked: game && game.quarantineMode; enabledLook: game && game.quarantineLeft <= 0
+            onClicked: game.toggleQuarantine()
+        }
+    }
+    Panel {
+        visible: hud.playing && game.quarantineMode
+        anchors.horizontalCenter: parent.horizontalCenter; y: parent.height * 0.23
+        width: Math.min(parent.width - 40, 530); height: 66; border.color: "#b399ff"
+        Text { anchors.centerIn: parent; width: parent.width - 20; text: Strings.t("quarantineHint"); color: "white"; font.pixelSize: 15; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap }
     }
     Panel {   // reboot aiming hint
         visible: hud.playing && game.rebootMode
@@ -120,7 +166,7 @@ Item {
     Panel {
         visible: hud.playing && game.selectedTower !== 0
         x: 8; anchors.bottom: parent.bottom; anchors.bottomMargin: 8
-        width: Math.min(hud.leftPanelMax, 560); height: towerCol.implicitHeight + 16
+        width: Math.min(hud.leftPanelMax, hud.compact ? 390 : 560); height: towerCol.implicitHeight + 16
         readonly property var info: (hud.v, game && game.selectedTower ? game.selectedTowerInfo() : null)
         Column {
             id: towerCol
@@ -143,6 +189,13 @@ Item {
                 BigButton { readonly property var i: parent.parent.parent.info
                             text: Strings.t("sell"); sub: (i ? i.sellValue : 0) + " ●"; tone: "#f2662f"; implicitWidth: 130 * hud.k; implicitHeight: hud.compact ? 52 : 64; onClicked: game.sellSelected() }
                 BigButton { text: "✕"; sub: hud.compact ? "" : Strings.t("close"); tone: "#4a5568"; implicitWidth: hud.compact ? 44 : 88; implicitHeight: hud.compact ? 52 : 64; onClicked: game.clearSelection() } }
+            BigButton {
+                readonly property var info: parent.parent.info
+                visible: info && (info.def.role === "scan" || info.def.role === "damage" || info.lvl.damage > 0)
+                text: Strings.t("targeting") + ": " + Strings.t("target_" + (info ? info.tower.priority : "first"))
+                width: parent.width; implicitHeight: 40
+                onClicked: game.cyclePriority()
+            }
             Text { readonly property var i: parent.parent.info
                    text: i && i.next ? "→ " + Strings.t("level") + " " + (i.tower.level + 2) + ": " + (i.next.damage ? Strings.t("damage") + " " + i.next.damage + "  " : "") + (i.next.rate && i.def.role !== "slow" ? Strings.t("rate") + " " + i.next.rate + "  " : "") + Strings.t("range") + " " + i.next.range + " m" + (i.next.splash ? "  " + Strings.t("splash") + " " + i.next.splash + " m" : "") + (i.next.slow ? "  " + Strings.t("slow") + " " + Math.round(i.next.slow * 100) + "%" : "") + (i.next.boost ? "  " + Strings.t("boost") + " " + i.next.boostDuration + " s" : "") : Strings.t("tower_" + (i ? i.def.id : "patch") + "_desc")
                    color: "#8fa3c0"; font.pixelSize: 14 * hud.k; width: towerCol.width; wrapMode: Text.WordWrap; visible: !hud.compact }
@@ -151,7 +204,7 @@ Item {
 
     // ---- hint when nothing is selected ----------------------------------------------------------------------
     Panel {
-        visible: hud.playing && game.selectedSocket === "" && game.selectedTower === 0 && !game.rebootMode && game.wave <= 1 && game.phase === "build"
+        visible: hud.playing && game.selectedSocket === "" && game.selectedTower === 0 && !game.rebootMode && !game.quarantineMode && game.wave <= 1 && game.phase === "build"
         x: 8; anchors.bottom: parent.bottom; anchors.bottomMargin: 8; width: Math.min(380, hud.leftPanelMax); height: hud.compact ? 44 : 56
         Text { anchors.centerIn: parent; width: parent.width - 16; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter; text: Strings.t("placeHere"); color: "white"; font.pixelSize: 17 * hud.k }
     }

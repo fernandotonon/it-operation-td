@@ -6,7 +6,7 @@ never modified). The ones the prototype uses are copied with a readable name int
 
 ```
 assets/source-images/<id>.png
-        │  qtmesh generate3d --backend trellis2 --preset fast --matting best --target-tris 8000 --texture-size 1024
+        │  qtmesh generate3d --backend trellis2 --preset fast --matting best --target-tris 8000 --texture-size 1024 --no-source
         │  (BiRefNet 1024² matte of the ORIGINAL image; MATTING=fast falls back to RGBA-as-is / prematte.py)
         ▼                                                                scripts/generate-models.sh
 assets/exported/<id>/<id>.glb  (+ .material, PBR PNGs)                   ~6-11 min per model on this Mac
@@ -30,6 +30,9 @@ app/config/assets.js  →  PropVisual   (gameplay never names a file; a missing 
   24 GB Apple M5. Characters use 25 000 triangles and 2048 px textures, props 8 000 / 1024. The `balanced`/`high` cascades stall in a Metal command buffer on this
   24 GB Apple Silicon Mac (documented in the School Adventure project), so the script defaults to `fast`
   and only tries other presets when `PRESET=` is given.
+* **Character refresh, 2026-11-12**: the QtMeshEditor 3.67.0 bundled native runtime completes balanced
+  character generation on this machine. The historical failures above remain relevant to the older
+  runtime; the new staged character pipeline uses balanced, BiRefNet and `--no-source`.
 * **Facing**: TRELLIS.2 output faces −Z; the manifest `rotation: 180` turns fronts to the camera.
 * **Base slabs**: with the U²-Net / pre-matte inputs the generator turned the reflection under a concept
   image into a plate as wide as the whole footprint and ~8-10 % of the model tall. BiRefNet matting removes
@@ -45,13 +48,35 @@ app/config/assets.js  →  PropVisual   (gameplay never names a file; a missing 
 
 ## Characters
 
-The three technicians (`tech_helmet`, `tech_headset`, `tech_polo`) go through `scripts/rig-character.sh`:
-`qtmesh rig --skeleton humanoid --skin --algo unirig`, then `qtmesh anim --generate idle|working|cheer`
-from QtMeshEditor's bundled motion library, renamed to `Idle` / `Typing` / `Cheer`. Pinocchio was tried
-first and left the arms unbound on these chibi proportions (torso and legs moved, arms stayed in T-pose);
-UniRig binds them correctly. `import-all.sh` imports the rigged GLB when `assets/rigged/<id>/` exists,
+The five currently shipped people (`tech_helmet`, `tech_headset`, `tech_polo`, `staff_02`, `staff_05`)
+use `scripts/rig-character.sh`: UniRig predicts the skeleton, then an explicit
+`qtmesh skin --algo skintokens --max-influences 4` computes the weights. Kimodo's native runtime
+creates the existing clip names from descriptive action prompts:
+
+| Clip | Action | Loop | Hand setting |
+|---|---|---|---|
+| `Idle` | Person standing quietly, breathing, arms naturally at their sides | seamless, auto | relaxed |
+| `Typing` | Person seated at a desk working on a computer, typing with both hands | seamless, auto | auto from prompt |
+| `Cheer` | Person raising both arms in celebration, then returning to standing | once | open |
+
+All motions disable root travel to keep people at their authored stations. Idle/Typing remain repeating
+in the Qt runtime; Cheer is imported with `--one-shot Cheer`. Finger detail depends on the joints UniRig
+predicts for each mesh; the prompt and Kimodo hand setting cannot manufacture missing finger geometry.
+After the three clips are merged, `scripts/stabilize-cheer-hands.py` twists each Hand about the forearm
+axis so palms aim toward the body midline while the arms are raised (Kimodo's overhead retarget
+otherwise turns the backs of the hands toward the head).
+
+`bash scripts/refresh-characters.sh` stages a complete refresh under the gitignored
+`assets/character-refresh/`, using BiRefNet (`--matting best`), `--no-source`, 20k triangles,
+2048 px textures, and sequential model/rig/animation tasks to bound memory use. The preset defaults
+to balanced for the newer runtime; `PRESET=fast` is available when a device cannot finish it.
+The original game assets remain in use until the staged files pass
+`python3 scripts/validate-character.py <rigged.glb> ...` and visual inspection.
+`IN_ROOT` and `RIG_ROOT` select alternative input/output directories for `rig-character.sh`.
+
+`import-all.sh` imports the rigged GLB when `assets/rigged/<id>/` exists,
 `PropVisual.clip` selects the clip, and `Board3D.celebrate` switches every technician to `Cheer` on victory.
-`app/CharacterPreview.qml` is a dojo/clayrender sandbox to look at one asset and clip.
+`app/CharacterPreview.qml` previews one character and clip in the real runtime.
 
 ## Commands
 

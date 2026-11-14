@@ -59,7 +59,7 @@ mkdir -p "$DEPLOY_DIR/assets"
 [ -d assets/runtime ] && cp -R assets/runtime "$DEPLOY_DIR/assets/"
 [ -d assets/sprites ] && cp -R assets/sprites "$DEPLOY_DIR/assets/"
 find "$DEPLOY_DIR/assets" -name .DS_Store -delete 2>/dev/null || true
-python3 scripts/web-optimize-assets.py "$DEPLOY_DIR/assets" --characters tech_helmet,tech_headset,tech_polo
+python3 scripts/web-optimize-assets.py "$DEPLOY_DIR/assets" --characters tech_helmet,tech_headset,tech_polo,staff_02,staff_05
 python3 scripts/make-web-pack.py "$DEPLOY_DIR"
 python3 scripts/make-web-index.py "$DEPLOY_DIR" "$APP"
 du -sh "$DEPLOY_DIR"/* | sed 's|^|  |'

@@ -1,0 +1,39 @@
+{
+  "device": "onnxruntime",
+  "diffusion_steps": 100,
+  "files": [
+    "/Users/fernandotonon/Library/Application Support/QtMeshEditor/QtMeshEditor/generated_motion/kimodo_1794633914588/motion_00.npz"
+  ],
+  "format": "qtmesh-motion-interchange",
+  "format_version": 1,
+  "fps": 30,
+  "joints": 77,
+  "loop_mode": "auto",
+  "loops": [
+    {
+      "cycleCostDeg": 10.583747171435878,
+      "cycleHeightCm": 22.114180028438568,
+      "cycleRootDeg": 14.468007747193397,
+      "cycleStartFrame": 56,
+      "method": "regenerate",
+      "periodFrames": 183,
+      "seconds": 6.1
+    }
+  ],
+  "model": "kimodo-soma-rp-v1.2",
+  "num_samples": 1,
+  "postprocess": true,
+  "root_motion": false,
+  "runtime": "native",
+  "seconds": 81.294,
+  "seed": 42,
+  "segments": [
+    {
+      "duration": 6,
+      "text": "A human sits at a desk working on a computer, leaning slightly forward and typing on a keyboard with both hands, with small finger and wrist movements. Remain seated in place."
+    }
+  ],
+  "source": "kimodo",
+  "text_conditioning": "prompt",
+  "text_encoder": "llama.cpp Q8_0 (Llama-3-LLM2Vec-8B-Kimodo-TextEncoder)"
+}

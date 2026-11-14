@@ -191,4 +191,75 @@ test("restart: reset() leaves no enemies, towers, projectiles or timers", () => 
     assert.equal(sim.takeEvents().length, 0)
 })
 
+test("free placement: snaps, rejects cable / rack / decor / bounds and prevents overlap", () => {
+    const sim = createSim(defs)
+    sim.state.credits = 10000
+    assert.equal(sim.floorSocket(NaN, 0), null)
+    const floor = sim.floorSocket(-4.1, 0.1)
+    assert.deepEqual([floor.x, floor.z], [-4, 0])
+    assert.equal(sim.placeTower(floor.id, "patch").ok, true)
+    assert.equal(sim.canPlace(sim.floorSocket(-4.5, 0).id, "patch").reason, "occupied")
+    for (const p of [{x: -7.5, z: 0}, defs.map.rack, defs.map.decor[0], {x: 12, z: 0}]) {
+        assert.equal(sim.canPlace(sim.floorSocket(p.x, p.z).id, "patch").ok, false, JSON.stringify(p))
+    }
+    const tower = sim.state.towers[0]
+    assert.equal(sim.sellTower(tower.id).ok, true)
+    assert.equal(sim.placeTower(floor.id, "firewall").ok, true)
+    sim.reset()
+    assert.equal(sim.towerAt(floor.id), null)
+})
+
+test("all stages: free floor offers valid sites and rejects every route segment", () => {
+    for (const stage of St.stages) {
+        const map = St.mapOf(stage), sim = createSim({...defs, map})
+        let valid = 0
+        for (let x = -10; x <= 10; x += 0.5) for (let z = -5.5; z <= 5.5; z += 0.5) {
+            if (sim.canPlace(sim.floorSocket(x,z).id, "patch").ok) valid++
+        }
+        assert.ok(valid > 30, "stage " + stage.id + " has " + valid + " sites")
+        for (let i = 0; i < map.path.length - 1; i++) {
+            const a = map.path[i], b = map.path[i+1]
+            assert.equal(sim.canPlace(sim.floorSocket((a.x+b.x)/2, (a.z+b.z)/2).id, "patch").ok, false)
+        }
+    }
+})
+
+test("target priorities change combat decisions and ignore concealed enemies", () => {
+    for (const [priority, expected] of [["first", 2], ["strong", 1], ["last", 0]]) {
+        const sim = createSim(defs)
+        const tower = sim.placeTower("s2", "patch").tower
+        const enemies = [3, 4, 5].map((dist, i) => sim.spawnEnemy("bug", dist + 5, i === 1 ? 300 : 30))
+        // Put candidates within range, retaining their route progress for ordering.
+        enemies.forEach(e => { e.speed = 0; const p = sim.posAt(e.dist); tower.x = p.x + 1; tower.z = p.z })
+        const hidden = sim.spawnEnemy("stealth", 10, 9999); hidden.speed = 0
+        tower.cooldown = 0
+        assert.equal(sim.setPriority(tower.id, priority).ok, true)
+        sim.step(1/60)
+        assert.equal(tower.target, enemies[expected].id, priority)
+        assert.equal(sim.setPriority(tower.id, "invalid").ok, false)
+    }
+})
+
+test("quarantine: timed area slow and reveal, cooldown, expiry and reset", () => {
+    const sim = createSim(defs)
+    assert.equal(sim.quarantine(0,0).reason, "phase")
+    sim.startWave()
+    const e = sim.spawnEnemy("stealth", 7, 500)
+    e.speed = 0
+    assert.equal(sim.quarantine(100,0).reason, "position")
+    assert.equal(sim.quarantine(e.x,e.z).ok, true)
+    assert.equal(sim.quarantine(e.x,e.z).reason, "cooldown")
+    sim.step(1/60)
+    assert.equal(sim.isRevealed(e), true)
+    assert.equal(e.slow, 0.5)
+    run(sim, 6)
+    assert.equal(sim.state.quarantine, null)
+    assert.equal(sim.isRevealed(e), false)
+    assert.equal(e.slow, 0)
+    assert.equal(sim.quarantine(e.x,e.z).reason, "cooldown")
+    sim.reset()
+    assert.equal(sim.state.quarantineReadyAt, 0)
+    assert.equal(sim.state.quarantine, null)
+})
+
 console.log(passed + " passed" + (process.exitCode ? ", with failures" : ""))

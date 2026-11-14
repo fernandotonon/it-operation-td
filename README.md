@@ -20,7 +20,7 @@ lado da rota de cabos, sobreviva a quinze ondas de ameaças de desenho animado e
 | Qt | **6.10+** (desenvolvido com 6.11.1) | kit desktop com Qt Quick 3D, Quick 3D Physics (dependência do Clayground), Quick Timeline, Multimedia, Shader Tools |
 | CMake ≥ 3.25, Ninja, um compilador C++17 | | em Apple Silicon use um CMake arm64 (um CMake x86_64 configura o build errado) |
 | Node 20+ | opcional | só para `node tests/sim.test.js` |
-| QtMeshEditor 3.39+ | opcional | só para (re)gerar assets; não é necessário para compilar ou jogar |
+| QtMeshEditor 3.67+ | opcional | só para (re)gerar assets; não é necessário para compilar ou jogar |
 
 ## Compilar e executar
 
@@ -97,9 +97,12 @@ rota, decoração sem cobrir pontos); `node tests/stage-balance.mjs` faz um bot 
 
 * A interface tem um modo compacto para telas pequenas (celular em paisagem): os cartões de torre quebram em
   duas linhas quando não cabem ao lado do cartão da onda.
-* Toque num **ponto azul** ao lado da rota e escolha uma torre (o círculo mostra o alcance antes de
+* Toque em **qualquer piso livre** ou num ponto azul sugerido e escolha uma torre (o círculo mostra o alcance antes de
   gastar). Toque de novo no cartão para comprar; `1`–`5` também escolhem.
-* Toque numa torre para **melhorar** (2 níveis) ou **vender** (70% de volta).
+* Toque numa torre para **melhorar** (2 níveis), **vender** (70% de volta) ou mudar o alvo: mais perto da saída, mais resistente ou último da fila.
+* **Quarentena** (`Q`): escolha uma área para reduzir a velocidade das ameaças em 50% e revelar pacotes ocultos durante 5 s. Recarga de 35 s; disponível durante as ondas.
+* O piso usa encaixe de 0,5 m e impede instalações sobre cabos, equipamentos e outras torres. Os pontos azuis continuam como sugestões.
+* Cada vitória recebe de uma a três estrelas: completar a fase, preservar pelo menos 15 de saúde ou terminar com os 20 pontos intactos. As estrelas também aparecem nos resultados já salvos.
 * **Iniciar onda** (`espaço`) quando estiver pronto. `1x`/`2x` (`F`) e **Pausa** (`P`/`Esc`).
 * **Reboot de Emergência** (`R`): toque no botão e depois no mapa. As torres da área ficam 3 s offline e
   voltam sem bloqueios e com turbo de velocidade por 6 s. Recarga de 45 s.
@@ -133,14 +136,15 @@ tests/               sim.test.js (regras), stages.test.js (geometria das fases),
 docs/                asset-pipeline.md, qtmesh-games/operacao-ti.json (manifesto para o QtMesh Games)
 ```
 
-Veja [docs/asset-pipeline.md](docs/asset-pipeline.md) para o fluxo QtMeshEditor → Clayground.
+Veja [docs/asset-pipeline.md](docs/asset-pipeline.md) para o fluxo QtMeshEditor → Clayground e [a atualização dos personagens](docs/character-refresh.md) para os prompts, loops e validação UniRig → SkinTokens → Kimodo.
 
 ## Limitações conhecidas
 
-* Os modelos vêm do preset `fast` (512) do TRELLIS.2 com o removedor de fundo de alta qualidade do
-  QtMeshEditor (`--matting best`, BiRefNet): neste Mac os presets `balanced`/`high` travam num command buffer
-  do Metal. Bastam para a câmera elevada, mas detalhes pequenos (teclas, portas) ficam suaves. O monitor
-  precisou de outra semente (`SEED=7`) porque a primeira textura saiu embaralhada.
+* Os objetos de cenário continuam no preset `fast` (512) do TRELLIS.2; detalhes pequenos, como teclas e
+  portas, ficam suaves. A atualização dos cinco personagens usa `balanced` com o runtime atual,
+  BiRefNet, `--no-source`, UniRig, SkinTokens e animações Kimodo. As falhas de `balanced`/`high`
+  documentadas na primeira geração se referem ao runtime antigo. O monitor precisou de outra semente
+  (`SEED=7`) porque a primeira textura saiu embaralhada.
 * As seis ameaças são personagens procedurais de caixas toon (`EnemyVisual.qml`): não havia referência
   fornecida e o gerador texto→imagem do QtMeshEditor (FLUX.2-klein) não está instalado nesta máquina.
 * Sem trilha sonora: só cues curtos sintetizados por `scripts/gen-audio.py` (nenhuma fonte licenciada disponível).

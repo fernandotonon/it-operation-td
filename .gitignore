@@ -18,3 +18,12 @@ assets/qtmesh-projects/exported-fast/
 /tmp/
 docs/screenshots/*.tmp.png
 deploy/
+
+# Staged character regeneration, backups and intermediate inference outputs
+assets/character-refresh/
+__pycache__/
+
+# regenerable clayrender dumps for the marketing trailer
+docs/marketing/frames/
+docs/marketing/clips/
+.venv-assets/

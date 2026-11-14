@@ -12,10 +12,10 @@ Rectangle {
     signal clicked()
     implicitWidth: Math.max(96, label.implicitWidth + 36)
     implicitHeight: sub === "" ? 52 : 64
-    radius: 14
-    color: !enabledLook ? "#3a4150" : checked ? tone : primary ? tone : "#1f2838"
+    radius: 9
+    color: !enabledLook ? "#3a4150" : checked ? tone : primary ? tone : "#20364b"
     border.color: checked || primary ? Qt.lighter(tone, 1.3) : "#4a5568"
-    border.width: 2
+    border.width: 1
     opacity: enabledLook ? 1 : 0.6
     scale: mouse.pressed && enabledLook ? 0.96 : 1
     Behavior on scale { NumberAnimation { duration: 80 } }

@@ -4,14 +4,16 @@ import QtQuick
 Rectangle {
     id: root
     property var game: null
-    color: "#cc0f1a2e"
+    color: "#df080f1d"
     property bool showHelp: false
     property bool showSettings: false
     MouseArea { anchors.fill: parent }   // swallow clicks
+    Rectangle { anchors.top: parent.top; anchors.topMargin: 24; anchors.horizontalCenter: parent.horizontalCenter; width: Math.min(parent.width * 0.7, 780); height: 2; color: "#42d9d0"; opacity: 0.6 }
+    Rectangle { anchors.bottom: parent.bottom; anchors.bottomMargin: 24; anchors.horizontalCenter: parent.horizontalCenter; width: Math.min(parent.width * 0.7, 780); height: 2; color: "#42d9d0"; opacity: 0.3 }
     Column {
         anchors.centerIn: parent; spacing: root.height < 560 ? 8 : 16; width: Math.min(parent.width - 40, 620)
         visible: !root.showHelp && !root.showSettings
-        Text { text: Strings.t("title"); color: "#5ab3f0"; font.pixelSize: root.height < 400 ? 28 : root.height < 560 ? 36 : 56; font.bold: true; anchors.horizontalCenter: parent.horizontalCenter }
+        Text { text: Strings.t("title"); color: "#70e3d7"; font.letterSpacing: 2; font.pixelSize: root.height < 400 ? 28 : root.height < 560 ? 36 : 56; font.bold: true; anchors.horizontalCenter: parent.horizontalCenter }
         Text { text: Strings.t("subtitle"); color: "white"; font.pixelSize: root.height < 400 ? 16 : root.height < 560 ? 20 : 30; anchors.horizontalCenter: parent.horizontalCenter }
         Text { visible: root.height >= 480; text: Strings.t("premise"); color: "#dbe4f0"; font.pixelSize: root.height < 560 ? 14 : 18; width: parent.width; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter; lineHeight: 1.25 }
         BigButton { text: Strings.t("play"); sub: root.height < 400 ? "" : Strings.t("chooseStage"); primary: true; tone: "#3fd07a"; width: 260; implicitHeight: root.height < 400 ? 48 : 64; anchors.horizontalCenter: parent.horizontalCenter; onClicked: game.openStages() }
@@ -26,6 +28,6 @@ Rectangle {
                        color: "white"; font.pixelSize: 17; anchors.horizontalCenter: parent.horizontalCenter } } }
         Text { visible: root.height >= 400; text: "Clayground · QtMeshEditor"; color: "#5a6b85"; font.pixelSize: 13; anchors.horizontalCenter: parent.horizontalCenter }
     }
-    TutorialCard { visible: root.showHelp; keys: root.showHelp ? ["place", "patch", "upgrade", "firewall", "traffic", "scanner", "backup", "reboot"] : []; onDone: root.showHelp = false }
+    TutorialCard { visible: root.showHelp; keys: root.showHelp ? ["place", "patch", "upgrade", "firewall", "traffic", "scanner", "backup", "reboot", "quarantine"] : []; onDone: root.showHelp = false }
     SettingsPanel { visible: root.showSettings; game: root.game; onClosed: root.showSettings = false }
 }

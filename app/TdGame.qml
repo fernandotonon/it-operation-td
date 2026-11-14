@@ -85,6 +85,14 @@ FocusScope {
     }
     function refresh() {
         var S = sim.state
+        quarantineLeft = Math.max(0, S.quarantineReadyAt - S.time)
+        board.quarantineZone = S.quarantine
+        bossHealth = 0; bossMaxHealth = 0
+        for (var bi = 0; bi < S.enemies.length; bi++) {
+            var be = S.enemies[bi]
+            if (be.alive && be.type === "boss") { bossHealth = be.hp; bossMaxHealth = be.maxHp; break }
+        }
+        if (S.time >= announcementUntil) waveAnnouncement = ""
         credits = S.credits; health = S.health; wave = S.wave; remaining = S.remaining; phase = S.phase; simTime = S.time
         rebootLeft = sim.rebootCooldownLeft(); rebootReady = sim.rebootReady()
         board.simTime = S.time; board.healthRatio = S.health / Tuning.tuning.startHealth
@@ -96,6 +104,7 @@ FocusScope {
     function startMatch(index) {
         if (index !== undefined && index !== stageIndex) selectStage(index)
         sim.reset(); board.reset(); board.celebrate = false
+        quarantineMode = false; waveAnnouncement = ""; announcementUntil = 0
         selectedSocket = ""; selectedTower = 0; armedType = ""; rebootMode = false; toasts = []; statusLabels = []
         speed = 1; paused = false; newRecord = false
         screen = "playing"
@@ -110,6 +119,7 @@ FocusScope {
         audio.play(won ? "win" : "lose")
         newRecord = save.recordMatch(stage.id, won, sim.state.wave, sim.state.time, sim.state.health, stageCount)
         rebootMode = false; board.rebootCursor = null
+        quarantineMode = false; board.quarantineCursor = null
     }
     function togglePause() {
         if (screen === "playing") { paused = true; screen = "paused" }
@@ -125,7 +135,9 @@ FocusScope {
     function nextWaveIndex() { return sim.state.wave }   // 0-based index of the wave that starts next
     function showTeachFor(waveIndex, then) {
         var w = stageWaves[waveIndex]
-        var keys = (w && w.teach ? w.teach : []).filter(function (k) { return !save.tutorialSeen(k) })
+        var lessons = (w && w.teach ? w.teach.slice() : [])
+        if (waveIndex === 2) lessons.push("quarantine")
+        var keys = lessons.filter(function (k) { return !save.tutorialSeen(k) })
         if (keys.length === 0) { then(); return }
         tutorial.keys = keys
         tutorial.onDoneCallback = function () { keys.forEach(save.markTutorialSeen); tutorial.keys = []; then() }
@@ -143,17 +155,38 @@ FocusScope {
     // ---- selection / build flow -----------------------------------------------------------------------
     function onBoardTapped(x, z) {
         if (screen !== "playing") return
+        if (quarantineMode) { castQuarantine(x, z); return }
         if (rebootMode) { doReboot(x, z); return }
-        var sock = board.socketNear(x, z, 1.0)
+        // Towers remain selectable regardless of whether they occupy a suggested pad.
+        var nearest = null, distance = 0.85
+        sim.state.towers.forEach(function (tower) {
+            var d = Math.hypot(tower.x - x, tower.z - z)
+            if (d < distance) { nearest = tower; distance = d }
+        })
+        var sock = nearest ? sim.socketById(nearest.socket) : board.socketNear(x, z, 0.65)
+        if (!sock) sock = sim.floorSocket(x, z)
         if (!sock) { clearSelection(); return }
-        var t = sim.towerAt(sock.id)
+        var t = nearest || sim.towerAt(sock.id)
+        var placement = t ? { ok: true } : sim.canPlace(sock.id, armedType || "patch")
+        if (!placement.ok && placement.reason !== "credits") {
+            toast(Strings.t("clearFloor")); return
+        }
+        if (!t && armedType && selectedSocket === sock.id) { buyTower(armedType); return }
         audio.play("click")
         if (t) { selectedTower = t.id; selectedSocket = sock.id; armedType = "" }
         else { selectedSocket = sock.id; selectedTower = 0; if (armedType && !sim.canPlace(sock.id, armedType).ok) armedType = "" }
         board.selectedSocket = selectedSocket; board.selectedTower = selectedTower; board.previewType = armedType
     }
-    function onBoardHovered(x, z) { if (rebootMode) board.rebootCursor = { x: x, z: z } }
-    function clearSelection() { selectedSocket = ""; selectedTower = 0; armedType = ""; board.selectedSocket = ""; board.selectedTower = 0; board.previewType = "" }
+    function onBoardHovered(x, z) {
+        if (screen !== "playing") return
+        if (armedType && !selectedSocket) {
+            board.buildCursor = board.socketNear(x, z, 0.65) || sim.floorSocket(x, z)
+            board.cursorValid = board.buildCursor && sim.canPlace(board.buildCursor.id, armedType).ok
+        } else board.buildCursor = null
+        if (quarantineMode) board.quarantineCursor = { x: x, z: z }
+        if (rebootMode) board.rebootCursor = { x: x, z: z }
+    }
+    function clearSelection() { selectedSocket = ""; selectedTower = 0; armedType = ""; board.selectedSocket = ""; board.selectedTower = 0; board.previewType = ""; board.buildCursor = null }
     function armTower(type) { armedType = type; board.previewType = type }
     function tapTowerCard(type) {
         if (!selectedSocket || selectedTower) { toast(Strings.t("placeHere")); armTower(type); return }
@@ -168,6 +201,12 @@ FocusScope {
         selectedTower = r.tower.id; armedType = ""
         board.selectedTower = selectedTower; board.previewType = ""
         board.sync(0); refresh()
+    }
+    function cyclePriority() {
+        var t = sim.towerById(selectedTower); if (!t) return
+        var modes = ["first", "strong", "last"]
+        sim.setPriority(t.id, modes[(modes.indexOf(t.priority) + 1) % modes.length])
+        audio.play("click"); refresh()
     }
     function upgradeSelected() {
         var r = sim.upgradeTower(selectedTower)
@@ -187,9 +226,30 @@ FocusScope {
         return { tower: t, def: def, lvl: lvl, next: next, upgradeCost: sim.upgradeCost(t), sellValue: sim.sellValue(t) }
     }
 
+    property bool quarantineMode: false
+    property real quarantineLeft: 0
+    property string waveAnnouncement: ""
+    property real announcementUntil: 0
+    property real bossHealth: 0
+    property real bossMaxHealth: 0
+    function toggleQuarantine() {
+        if (quarantineMode) { quarantineMode = false; board.quarantineCursor = null; return }
+        if (phase !== "wave" || quarantineLeft > 0) return
+        clearSelection(); rebootMode = false; board.rebootCursor = null
+        quarantineMode = true; board.quarantineCursor = { x: 0, z: 0 }
+    }
+    function castQuarantine(x, z) {
+        var result = sim.quarantine(x, z)
+        if (!result.ok) return
+        quarantineMode = false; board.quarantineCursor = null
+        audio.play("reveal"); board.spawnFx("reveal", x, z, "#b399ff", 2.3); refresh()
+    }
+    function medals(health) { return health >= 20 ? 3 : health >= 15 ? 2 : health > 0 ? 1 : 0 }
+
     // ---- Emergency Reboot ---------------------------------------------------------------------------
     function toggleRebootMode() {
         if (!rebootReady && !rebootMode) { toast(Strings.t("rebootCooldown") + " " + Math.ceil(rebootLeft) + " s"); return }
+        quarantineMode = false; board.quarantineCursor = null
         rebootMode = !rebootMode
         board.rebootCursor = rebootMode ? { x: 0, z: 0 } : null
         if (rebootMode) clearSelection()
@@ -212,6 +272,7 @@ FocusScope {
         for (var i = 0; i < ev.length; i++) {
             var e = ev[i]
             switch (e.type) {
+            case "waveStart": waveAnnouncement = Strings.t("wave") + " " + e.wave + " / " + waveCount; announcementUntil = sim.state.time + 2.2; break;
             case "shot":
                 if (e.kind === "beam") board.spawnBeam(e.x, e.z, e.tx, e.tz, Towers.towers[e.towerType].accent)
                 if (shots++ < 2) audio.play("shot")
@@ -289,7 +350,7 @@ FocusScope {
         sim.state.credits = 100000
         for (var s in buys) sim.placeTower(s, buys[s])
         sim.state.credits = 300
-        sim.state.wave = Math.max(0, (w || 1) - 1)
+        sim.state.wave = Math.max(0, Math.min(waveCount - 1, (w || 1) - 1))
         sim.startWave(); board.sync(0); refresh()
     }
     function debugSetModels(b) { board.useModels = b }
@@ -358,10 +419,11 @@ FocusScope {
     EndOverlay { anchors.fill: parent; game: game; visible: game.screen === "won" || game.screen === "lost" }
 
     Keys.onPressed: function (event) {
-        if (event.key === Qt.Key_Escape) { if (rebootMode) toggleRebootMode(); else if (selectedSocket || selectedTower) clearSelection(); else if (screen === "playing" || screen === "paused") togglePause(); event.accepted = true }
+        if (event.key === Qt.Key_Escape) { if (quarantineMode) toggleQuarantine(); else if (rebootMode) toggleRebootMode(); else if (selectedSocket || selectedTower) clearSelection(); else if (screen === "playing" || screen === "paused") togglePause(); event.accepted = true }
         else if (event.key === Qt.Key_Space) { if (screen === "playing" && phase === "build") requestStartWave(); event.accepted = true }
         else if (event.key === Qt.Key_P) { if (screen === "playing" || screen === "paused") togglePause(); event.accepted = true }
         else if (event.key === Qt.Key_F) { speed = speed === 1 ? 2 : 1; event.accepted = true }
+        else if (event.key === Qt.Key_Q) { if (screen === "playing") toggleQuarantine(); event.accepted = true }
         else if (event.key === Qt.Key_R) { if (screen === "playing") toggleRebootMode(); event.accepted = true }
         else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_5) { if (screen === "playing") tapTowerCard(towerOrder[event.key - Qt.Key_1]); event.accepted = true }
     }

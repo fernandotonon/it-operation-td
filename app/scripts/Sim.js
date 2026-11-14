@@ -42,7 +42,12 @@ function createSim(defs) {
     sim.pathLength = pathLength
 
     // ---- state -----------------------------------------------------------------------------
-    function socketById(id) { for (var i = 0; i < map.sockets.length; i++) if (map.sockets[i].id === id) return map.sockets[i]; return null }
+    function socketById(id) {
+        if (typeof id === "string" && /^floor:-?\d+:-?\d+$/.test(id)) {
+            var parts = id.split(":")
+            return { id: id, x: Number(parts[1]) / 2, z: Number(parts[2]) / 2 }
+        }
+        for (var i = 0; i < map.sockets.length; i++) if (map.sockets[i].id === id) return map.sockets[i]; return null }
     function towerAt(socketId) { for (var i = 0; i < S.towers.length; i++) if (S.towers[i].socket === socketId) return S.towers[i]; return null }
     function towerById(id) { for (var i = 0; i < S.towers.length; i++) if (S.towers[i].id === id) return S.towers[i]; return null }
     sim.towerAt = towerAt
@@ -52,7 +57,7 @@ function createSim(defs) {
         S = {
             credits: T.startCredits, health: T.startHealth, wave: 0, phase: "build", time: 0,
             enemies: [], towers: [], projectiles: [], remaining: 0,
-            spawnQueue: [], rebootReadyAt: 0, rebooting: null, accumulator: 0,
+            spawnQueue: [], quarantineReadyAt: 0, quarantine: null, rebootReadyAt: 0, rebooting: null, accumulator: 0,
             stats: { defeated: 0, escaped: 0, spent: 0, earned: 0 }
         }
         sim.state = S
@@ -73,10 +78,35 @@ function createSim(defs) {
     }
     sim.sellValue = function (tower) { return Math.floor(tower.invested * T.sellRefund) }
     sim.levelOf = function (tower) { return TW[tower.type].levels[tower.level] }
+    // Half-metre snapping keeps mouse and touch placement predictable; checks are authoritative here.
+    sim.floorSocket = function (x, z) {
+        if (!isFinite(x) || !isFinite(z)) return null
+        return socketById("floor:" + Math.round(x * 2) + ":" + Math.round(z * 2))
+    }
+    function clearFloor(sock) {
+        var x = sock.x, z = sock.z, b = map.board
+        if (x < b.minX + 0.65 || x > b.maxX - 0.65 || z < b.minZ + 0.65 || z > b.maxZ - 0.65) return false
+        for (var i = 0; i < segs.length; i++) {
+            var seg = segs[i], along = Math.max(0, Math.min(seg.len, (x - seg.a.x) * seg.dx + (z - seg.a.z) * seg.dz))
+            if (Math.hypot(x - seg.a.x - seg.dx * along, z - seg.a.z - seg.dz * along) < map.pathWidth / 2 + 0.55) return false
+        }
+        if (Math.hypot(x - map.rack.x, z - map.rack.z) < 1.5) return false
+        for (var j = 0; j < (map.decor || []).length; j++) {
+            var d = map.decor[j]
+            if (Math.hypot(x - d.x, z - d.z) < 0.85 * (d.scale || 1) + 0.5) return false
+        }
+        return true
+    }
+    sim.socketById = socketById
     sim.canPlace = function (socketId, typeId) {
         if (S.phase === "won" || S.phase === "lost") return { ok: false, reason: "over" }
         if (!TW[typeId]) return { ok: false, reason: "type" }
-        if (!socketById(socketId)) return { ok: false, reason: "socket" }
+        var sock = socketById(socketId)
+        if (!sock) return { ok: false, reason: "socket" }
+        if (socketId.indexOf("floor:") === 0 && !clearFloor(sock)) return { ok: false, reason: "blocked" }
+        for (var i = 0; i < S.towers.length; i++) {
+            if (Math.hypot(S.towers[i].x - sock.x, S.towers[i].z - sock.z) < 1.15) return { ok: false, reason: "occupied" }
+        }
         if (towerAt(socketId)) return { ok: false, reason: "occupied" }
         if (S.credits < TW[typeId].cost) return { ok: false, reason: "credits" }
         return { ok: true }
@@ -87,7 +117,7 @@ function createSim(defs) {
         var sock = socketById(socketId), def = TW[typeId]
         var t = { id: nextId++, type: typeId, socket: socketId, x: sock.x, z: sock.z, level: 0,
                   cooldown: 0.4, invested: def.cost, disabledUntil: 0, immuneUntil: 0, rebootUntil: 0,
-                  boostMult: 1, boostUntil: 0, kills: 0, aim: 0, target: 0, lastShot: -1 }
+                  priority: "first", boostMult: 1, boostUntil: 0, kills: 0, aim: 0, target: 0, lastShot: -1 }
         S.towers.push(t)
         S.credits -= def.cost; S.stats.spent += def.cost
         emit("place", { tower: t.id, towerType: typeId, x: t.x, z: t.z })
@@ -157,6 +187,17 @@ function createSim(defs) {
     sim.isRevealed = function (e) { return !e.concealed || e.revealedUntil > S.time }
     sim.towerActive = function (t) { return t.disabledUntil <= S.time && t.rebootUntil <= S.time }
 
+    // Quarantine is immediate crowd control, complementary to reboot's delayed tower boost.
+    sim.quarantine = function (x, z) {
+        if (S.phase !== "wave") return { ok: false, reason: "phase" }
+        if (!isFinite(x) || !isFinite(z) || x < map.board.minX || x > map.board.maxX || z < map.board.minZ || z > map.board.maxZ) return { ok: false, reason: "position" }
+        if (S.time < S.quarantineReadyAt) return { ok: false, reason: "cooldown" }
+        S.quarantine = { x: x, z: z, until: S.time + 5, radius: 2.3 }
+        S.quarantineReadyAt = S.time + 35
+        emit("quarantine", { x: x, z: z })
+        return { ok: true }
+    }
+
     // ---- emergency reboot --------------------------------------------------------------------
     sim.rebootReady = function () { return S.time >= S.rebootReadyAt && !S.rebooting && S.phase !== "won" && S.phase !== "lost" }
     sim.rebootCooldownLeft = function () { return Math.max(0, S.rebootReadyAt - S.time) }
@@ -198,13 +239,19 @@ function createSim(defs) {
 
     // ---- combat helpers ----------------------------------------------------------------------
     function inRange(t, e, range) { return Math.hypot(t.x - e.x, t.z - e.z) <= range + e.radius }
+    sim.setPriority = function (id, priority) {
+        var t = towerById(id)
+        if (!t || ["first", "strong", "last"].indexOf(priority) < 0 || S.phase === "won" || S.phase === "lost") return { ok: false }
+        t.priority = priority
+        return { ok: true }
+    }
     function pickTarget(t, range) {
         var best = null
         for (var i = 0; i < S.enemies.length; i++) {
             var e = S.enemies[i]
             if (!e.alive || !sim.isRevealed(e)) continue
             if (!inRange(t, e, range)) continue
-            if (!best || e.dist > best.dist) best = e     // furthest along the route first
+            if (!best || (t.priority === "strong" ? e.hp > best.hp : t.priority === "last" ? e.dist < best.dist : e.dist > best.dist)) best = e
         }
         return best
     }
@@ -262,10 +309,15 @@ function createSim(defs) {
         var now = S.time
         // spawns
         while (S.spawnQueue.length && S.spawnQueue[0].at <= now) spawnEnemy(S.spawnQueue.shift().type, 0)
+        if (S.quarantine && now >= S.quarantine.until) S.quarantine = null
         // enemies move
         for (var i = 0; i < S.enemies.length; i++) {
             var e = S.enemies[i]
             if (!e.alive) continue
+            if (S.quarantine && Math.hypot(e.x - S.quarantine.x, e.z - S.quarantine.z) <= S.quarantine.radius + e.radius) {
+                applySlow(e, 0.5, 0.2)
+                e.revealedUntil = Math.max(e.revealedUntil, now + 0.3)
+            }
             if (e.slowUntil <= now) e.slow = 0
             e.dist += e.speed * (1 - e.slow) * dt
             var p = posAt(e.dist); e.x = p.x; e.z = p.z; e.dx = p.dx; e.dz = p.dz

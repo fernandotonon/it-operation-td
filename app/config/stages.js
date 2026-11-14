@@ -1,5 +1,5 @@
 // The stages. Units are metres; x grows to the right, z towards the camera. Every route is a fixed
-// axis-aligned polyline (no pathfinding); sockets are the only places a tower can go. Stage 1 is the
+// axis-aligned polyline (no pathfinding); sockets suggest strong positions; clear floor also supports snapped placement. Stage 1 is the
 // original datacenter floor. `waves` = number of waves (the last one is always the Friday Deployment),
 // `hp` scales enemy health, `credits` is the starting budget. Names are string keys (stage_<id>).
 .pragma library
@@ -128,6 +128,6 @@ function mapOf(st) {
     var decor = []
     st.decor.forEach(function (k) { decor = decor.concat(cornerDecor[k] || []) })
     decor = decor.concat((st.extra || []).filter(function (d) { return isAvailable(d.asset) }))
-    return { board: board, pathWidth: pathWidth, path: st.path, portal: st.path[0], rack: st.rack, sockets: st.sockets, decor: decor }
+    return { sector: st.id - 1, board: board, pathWidth: pathWidth, path: st.path, portal: st.path[0], rack: st.rack, sockets: st.sockets, decor: decor }
 }
 function difficulty(st) { return st.hp < 1.05 ? 1 : st.hp < 1.25 ? 2 : st.hp < 1.45 ? 3 : st.hp < 1.65 ? 4 : 5 }

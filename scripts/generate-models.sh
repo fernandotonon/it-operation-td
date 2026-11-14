@@ -10,8 +10,8 @@
 # Quality: PRESET fast (512 cascade) is the default on this machine - the balanced/high cascades
 # stall in a Metal command buffer on a 24 GB Apple Silicon Mac (documented in the School Adventure
 # project). Props get 8 000 triangles / 1024 px textures, characters 20 000 / 2048.
-# Output per model: assets/exported/<id>/<id>.glb + .material + PBR PNGs. The generation sidecar
-# (<id>_source.qtm3d, ~20 MB) goes to assets/qtmesh-projects/sources/ (gitignored).
+# Output per model: assets/exported/<id>/<id>.glb + .material + PBR PNGs.
+# --no-source suppresses bulky editable generation sidecars.
 #
 # Input matting (MATTING=best, default): the ORIGINAL image goes to QtMeshEditor's high-quality background
 # remover (`--matting best`, BiRefNet 1024², ~930 MB downloaded on first use); it also drops the soft
@@ -71,7 +71,7 @@ for id in "${ids[@]}"; do
     dir="$OUT_ROOT/$id"; out="$dir/$id.glb"; log="assets/qtmesh-projects/logs/$id.log"
     [ -f "$img" ] || { echo "SKIP $id (no image)"; continue; }
     [ -s "$out" ] && { echo "SKIP $id (exists)"; continue; }
-    if [[ "$CHARACTERS" == *" $id "* || "$id" == staff_* ]]; then tris="${TRIS:-25000}"; tex="${TEXSIZE:-2048}"
+    if [[ "$CHARACTERS" == *" $id "* || "$id" == staff_* ]]; then tris="${TRIS:-20000}"; tex="${TEXSIZE:-2048}"
     else tris="${TRIS:-8000}"; tex="${TEXSIZE:-1024}"; fi
     mkdir -p "$dir"; S=$(date +%s)
     mattflag=""
@@ -90,7 +90,7 @@ for id in "${ids[@]}"; do
     for preset in "${PRESET:-fast}" $FALLBACK_PRESETS; do
         echo "== $id: preset $preset, $tris tris, ${tex}px ($(date '+%H:%M:%S'))" | tee -a "$log"
         run_with_watchdog "$WATCHDOG_MIN" "$log" "$Q" generate3d "$input" -o "$out" --backend trellis2 --preset "$preset" \
-            --target-tris "$tris" --texture-size "$tex" $mattflag --seed "${SEED:-42}" >> "$log" 2>&1
+            --target-tris "$tris" --texture-size "$tex" --no-source $mattflag --seed "${SEED:-42}" >> "$log" 2>&1
         rc=$?
         [ $rc -eq 0 ] && [ -s "$out" ] && { echo "$preset" > "$dir/.preset"; break; }
         echo "-- $id: preset $preset failed (rc=$rc)" | tee -a "$log"

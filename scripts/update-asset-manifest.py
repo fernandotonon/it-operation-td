@@ -3,7 +3,7 @@
 balsam import set model / unitHeight / footOffset / representation / status. Gameplay never
 changes - only the manifest. `height` (metres) and `rotation` stay as authored.
 
-    python3 scripts/update-asset-manifest.py [--dry-run]
+    python3 scripts/update-asset-manifest.py [--dry-run] [asset_id ...]
 
 unitHeight = bbox height of the source GLB, footOffset = -minY (read with `qtmesh info --json`)."""
 import json, os, re, subprocess, sys
@@ -12,6 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 Q = os.environ.get("QTMESH", "/opt/homebrew/bin/qtmesh")
 ENV = dict(os.environ, QTMESH_NO_TELEMETRY="1")
 DRY = "--dry-run" in sys.argv
+SELECTED = {arg for arg in sys.argv[1:] if not arg.startswith("--")}
 
 def type_name(asset_id): return "".join(p.capitalize() for p in asset_id.split("_"))
 
@@ -35,10 +36,16 @@ def main():
     src = open(path, encoding="utf-8").read()
     changed = []
     for asset_id in re.findall(r"^\s{4}(\w+):\s*\{", src, re.M):
+        if SELECTED and asset_id not in SELECTED:
+            continue
         rt = os.path.join(ROOT, "assets", "runtime", asset_id)
         qmls = sorted(f for f in os.listdir(rt)) if os.path.isdir(rt) else []
         qmls = [f for f in qmls if f.endswith(".qml")]
-        glb = os.path.join(ROOT, "assets", "exported", asset_id, asset_id + "_trim.glb")
+        # Fit the mesh actually imported. Character rigs retain the full feet even if a
+        # static trimmed companion exists from an older import run.
+        glb = os.path.join(ROOT, "assets", "rigged", asset_id, asset_id + "_rigged.glb")
+        if not os.path.exists(glb):
+            glb = os.path.join(ROOT, "assets", "exported", asset_id, asset_id + "_trim.glb")
         if not os.path.exists(glb):
             glb = os.path.join(ROOT, "assets", "exported", asset_id, asset_id + ".glb")
         if not qmls or not os.path.exists(glb):

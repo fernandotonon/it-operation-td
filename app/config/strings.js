@@ -527,3 +527,134 @@ var table = {
         stats: "Risultato", defeated: "Minacce risolte", escaped: "Sfuggite", time: "Tempo", newBest: "Nuovo record!"
     }
 }
+
+// Free placement and tactical operation controls.
+Object.assign(table.en, {
+    "targeting": "Target",
+    "target_first": "First to exit",
+    "target_strong": "Strongest",
+    "target_last": "Last in line",
+    "clearFloor": "Choose clear floor away from cables, equipment and other towers.",
+    "placeHere": "Choose any clear floor tile or a suggested blue pad, then choose a tower.",
+    "socketHint": "Cover bends and combine tower roles.",
+    "teach_place": "Choose any clear floor tile or a blue suggested pad, then choose a tower. Tap its card again to deploy.",
+    "quarantine": "Quarantine",
+    "quarantineHint": "Choose an area: slow threats by 50% and reveal hidden packets for 5 s. Cooldown: 35 s.",
+    "ready": "Ready",
+    "medalGoal": "★ Clear · ★★ 15+ health · ★★★ Full health"
+})
+Object.assign(table.pt_BR, {
+    "targeting": "Alvo",
+    "target_first": "Mais perto da saída",
+    "target_strong": "Mais resistente",
+    "target_last": "Último da fila",
+    "clearFloor": "Escolha um piso livre, longe dos cabos, equipamentos e outras torres.",
+    "placeHere": "Escolha qualquer piso livre ou um ponto azul e selecione uma torre.",
+    "socketHint": "Cubra curvas e combine funções das torres.",
+    "teach_place": "Escolha um piso livre ou um ponto azul e selecione uma torre. Toque no cartão novamente para instalar.",
+    "quarantine": "Quarentena",
+    "quarantineHint": "Escolha uma área: reduz a velocidade em 50% e revela pacotes ocultos por 5 s. Recarga: 35 s.",
+    "ready": "Pronto",
+    "medalGoal": "★ Vitória · ★★ 15+ de saúde · ★★★ Saúde total"
+})
+Object.assign(table.de, {
+    "targeting": "Ziel",
+    "target_first": "Vorn",
+    "target_strong": "Stärkstes",
+    "target_last": "Hinten",
+    "clearFloor": "Wähle freien Boden abseits von Kabeln, Geräten und Türmen.",
+    "placeHere": "Wähle freien Boden oder einen blauen Platz, dann einen Turm.",
+    "socketHint": "Decke Kurven ab und kombiniere Turmrollen.",
+    "teach_place": "Wähle freien Boden oder einen blauen Platz und einen Turm. Tippe zum Bauen erneut auf die Karte.",
+    "quarantine": "Quarantäne",
+    "quarantineHint": "Wähle einen Bereich: 50% langsamer und versteckte Pakete 5 s sichtbar. Abklingzeit: 35 s.",
+    "ready": "Bereit",
+    "medalGoal": "★ Sieg · ★★ 15+ Gesundheit · ★★★ Volle Gesundheit"
+})
+Object.assign(table.ru, {
+    "targeting": "Цель",
+    "target_first": "Ближе к выходу",
+    "target_strong": "Самая сильная",
+    "target_last": "Последняя",
+    "clearFloor": "Выбери свободный пол вдали от кабелей, оборудования и башен.",
+    "placeHere": "Выбери свободный пол или синюю точку, затем башню.",
+    "socketHint": "Прикрывай повороты и сочетай роли башен.",
+    "teach_place": "Выбери свободный пол или синюю точку, затем башню. Нажми карточку ещё раз для установки.",
+    "quarantine": "Карантин",
+    "quarantineHint": "Выбери область: замедление на 50% и раскрытие скрытых пакетов на 5 с. Перезарядка: 35 с.",
+    "ready": "Готово",
+    "medalGoal": "★ Победа · ★★ 15+ здоровья · ★★★ Полное здоровье"
+})
+Object.assign(table.fr, {
+    "targeting": "Cible",
+    "target_first": "Près de la sortie",
+    "target_strong": "La plus forte",
+    "target_last": "En dernier",
+    "clearFloor": "Choisis un sol libre, loin des câbles, équipements et tours.",
+    "placeHere": "Choisis un sol libre ou un emplacement bleu, puis une tour.",
+    "socketHint": "Couvre les virages et combine les rôles des tours.",
+    "teach_place": "Choisis un sol libre ou un emplacement bleu, puis une tour. Touche à nouveau sa carte pour construire.",
+    "quarantine": "Quarantaine",
+    "quarantineHint": "Choisis une zone : ralentit de 50% et révèle les paquets cachés pendant 5 s. Recharge : 35 s.",
+    "ready": "Prêt",
+    "medalGoal": "★ Victoire · ★★ 15+ de santé · ★★★ Santé maximale"
+})
+Object.assign(table.pl, {
+    "targeting": "Cel",
+    "target_first": "Najbliżej wyjścia",
+    "target_strong": "Najsilniejszy",
+    "target_last": "Ostatni",
+    "clearFloor": "Wybierz wolną podłogę z dala od kabli, sprzętu i wież.",
+    "placeHere": "Wybierz wolną podłogę lub niebieskie pole, a potem wieżę.",
+    "socketHint": "Osłaniaj zakręty i łącz role wież.",
+    "teach_place": "Wybierz wolną podłogę lub niebieskie pole, a potem wieżę. Dotknij karty ponownie, aby zbudować.",
+    "quarantine": "Kwarantanna",
+    "quarantineHint": "Wybierz obszar: spowolnienie o 50% i ujawnienie ukrytych pakietów na 5 s. Odnowienie: 35 s.",
+    "ready": "Gotowe",
+    "medalGoal": "★ Wygrana · ★★ 15+ zdrowia · ★★★ Pełne zdrowie"
+})
+Object.assign(table.tr, {
+    "targeting": "Hedef",
+    "target_first": "Çıkışa en yakın",
+    "target_strong": "En güçlü",
+    "target_last": "En arkadaki",
+    "clearFloor": "Kablolardan, ekipmandan ve kulelerden uzak boş zemin seç.",
+    "placeHere": "Boş zemin veya mavi bir alan seç, ardından kule seç.",
+    "socketHint": "Dönüşleri koru ve kule rollerini birleştir.",
+    "teach_place": "Boş zemin veya mavi alan seç, ardından kule seç. Kurmak için kartına tekrar dokun.",
+    "quarantine": "Karantina",
+    "quarantineHint": "Bir alan seç: 5 sn boyunca %50 yavaşlatır ve gizli paketleri açığa çıkarır. Bekleme: 35 sn.",
+    "ready": "Hazır",
+    "medalGoal": "★ Zafer · ★★ 15+ sağlık · ★★★ Tam sağlık"
+})
+Object.assign(table.es, {
+    "targeting": "Objetivo",
+    "target_first": "Cerca de la salida",
+    "target_strong": "Más fuerte",
+    "target_last": "Último",
+    "clearFloor": "Elige suelo libre, lejos de cables, equipos y torres.",
+    "placeHere": "Elige suelo libre o un punto azul y luego una torre.",
+    "socketHint": "Cubre curvas y combina funciones de las torres.",
+    "teach_place": "Elige suelo libre o un punto azul y luego una torre. Toca su tarjeta otra vez para construir.",
+    "quarantine": "Cuarentena",
+    "quarantineHint": "Elige una zona: ralentiza un 50% y revela paquetes ocultos durante 5 s. Recarga: 35 s.",
+    "ready": "Listo",
+    "medalGoal": "★ Victoria · ★★ 15+ de salud · ★★★ Salud completa"
+})
+Object.assign(table.it, {
+    "targeting": "Bersaglio",
+    "target_first": "Vicino all’uscita",
+    "target_strong": "Più forte",
+    "target_last": "Ultimo",
+    "clearFloor": "Scegli un pavimento libero, lontano da cavi, attrezzature e torri.",
+    "placeHere": "Scegli un pavimento libero o un punto blu, poi una torre.",
+    "socketHint": "Copri le curve e combina i ruoli delle torri.",
+    "teach_place": "Scegli un pavimento libero o un punto blu, poi una torre. Tocca di nuovo la carta per costruire.",
+    "quarantine": "Quarantena",
+    "quarantineHint": "Scegli un’area: rallenta del 50% e rivela pacchetti nascosti per 5 s. Ricarica: 35 s.",
+    "ready": "Pronto",
+    "medalGoal": "★ Vittoria · ★★ 15+ salute · ★★★ Salute piena"
+})
+
+// Reuse the localized ability explanation in the tutorial.
+languages.forEach(function (code) { table[code].teach_quarantine = table[code].quarantineHint })

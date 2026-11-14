@@ -18,6 +18,10 @@ Item {
     property int selectedTower: 0
     property string previewType: ""          // armed tower type -> range ring at the selected socket
     property var rebootCursor: null           // { x, z } while aiming the Emergency Reboot
+    property var buildCursor: null
+    property bool cursorValid: false
+    property var quarantineCursor: null
+    property var quarantineZone: null
     property real healthRatio: 1
     property bool celebrate: false            // victory: every technician cheers
     property var occupied: ({})
@@ -26,6 +30,8 @@ Item {
     readonly property var mapPath: map.path
     readonly property var sockets: map.sockets
     readonly property real pathLen: sim ? sim.pathLength : 1
+
+    readonly property color sectorAccent: ["#42d9d0", "#6aa9ff", "#b399ff", "#f4bc70"][Math.floor((map.sector || 0) / 3) % 4]
 
     // Screen position of a board point. Projected through the camera's own matrices (mapToViewport is pure
     // math), so it is also valid before the first frame - View3D.mapFrom3DScene needs render data.
@@ -56,13 +62,13 @@ Item {
         }
         return best
     }
-    function socketById(id) { for (var i = 0; i < map.sockets.length; i++) if (map.sockets[i].id === id) return map.sockets[i]; return null }
+    function socketById(id) { if (sim) return sim.socketById(id); for (var i = 0; i < map.sockets.length; i++) if (map.sockets[i].id === id) return map.sockets[i]; return null }
 
     View3D {
         id: view
         anchors.fill: parent
         environment: SceneEnvironment {
-            clearColor: "#0f1a2e"
+            clearColor: "#080f1d"
             backgroundMode: SceneEnvironment.Color
             antialiasingMode: board.reducedFx ? SceneEnvironment.NoAA : SceneEnvironment.MSAA
             antialiasingQuality: SceneEnvironment.Medium
@@ -76,7 +82,7 @@ Item {
         }
         DirectionalLight {
             eulerRotation: Qt.vector3d(-58, -28, 0)
-            brightness: 0.85
+            brightness: 1.05
             castsShadow: !board.reducedFx
             shadowFactor: 45
             shadowMapQuality: Light.ShadowMapQualityHigh
@@ -84,30 +90,59 @@ Item {
             pcfFactor: 6
             csmNumSplits: 0
         }
-        DirectionalLight { eulerRotation: Qt.vector3d(-30, 150, 0); brightness: 0.35; color: "#cfe0ff" }
+        DirectionalLight { eulerRotation: Qt.vector3d(-30, 150, 0); brightness: 0.65; color: "#cfe0ff" }
 
         // ---- floor and perimeter ---------------------------------------------------------------
         Box3D { y: -10; width: (board.map.board.maxX - board.map.board.minX) * 100; height: 10; depth: (board.map.board.maxZ - board.map.board.minZ) * 100
-                color: "#d3dbe6"; useToonShading: true; showEdges: false; receivesShadows: true; castsShadows: false }
+                color: ["#26374b", "#293d4d", "#32354d", "#3c3641"][Math.floor((board.map.sector || 0) / 3)]; useToonShading: true; showEdges: false; receivesShadows: true; castsShadows: false }
         Repeater3D {   // tile seams
             model: Math.round(board.map.board.maxX - board.map.board.minX) + 1
-            delegate: Box3D { required property int index; x: (board.map.board.minX + index) * 100; y: 0; width: 2; height: 0.8; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#c5cfdb"; showEdges: false; lighting: 0; castsShadows: false }
+            delegate: Box3D { required property int index; x: (board.map.board.minX + index) * 100; y: 0; width: 2; height: 0.8; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#34495f"; showEdges: false; lighting: 0; castsShadows: false }
         }
         Repeater3D {
             model: Math.round(board.map.board.maxZ - board.map.board.minZ) + 1
-            delegate: Box3D { required property int index; z: (board.map.board.minZ + index) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX) * 100; height: 0.8; depth: 2; color: "#c5cfdb"; showEdges: false; lighting: 0; castsShadows: false }
+            delegate: Box3D { required property int index; z: (board.map.board.minZ + index) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX) * 100; height: 0.8; depth: 2; color: "#34495f"; showEdges: false; lighting: 0; castsShadows: false }
         }
         // low walls; the back wall carries the monitoring wall
-        Box3D { z: (board.map.board.minZ - 0.15) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX + 0.6) * 100; height: 120; depth: 30; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
+        Box3D { z: (board.map.board.minZ - 0.15) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX + 0.6) * 100; height: 120; depth: 30; color: "#192b40"; useToonShading: true; showEdges: true; edgeColor: "#405c75" }
         Repeater3D {
             model: 8
             delegate: Box3D { required property int index; x: -700 + index * 200; z: (board.map.board.minZ) * 100 + 2; y: 48; width: 150; height: 60; depth: 4
                               color: index % 3 === 0 ? "#2f7ff2" : index % 3 === 1 ? "#1d4fa8" : "#3fd07a"; showEdges: true; edgeColor: "#0b1a33"; lighting: 0; castsShadows: false }
         }
-        Box3D { x: (board.map.board.minX - 0.15) * 100; y: 0; width: 30; height: 50; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
-        Box3D { x: (board.map.board.maxX + 0.15) * 100; y: 0; width: 30; height: 50; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
-        Box3D { z: (board.map.board.maxZ + 0.15) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX + 0.6) * 100; height: 24; depth: 30; color: "#b9c6d6"; useToonShading: true; showEdges: true; edgeColor: "#7c8796" }
+        Box3D { x: (board.map.board.minX - 0.15) * 100; y: 0; width: 30; height: 50; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#192b40"; useToonShading: true; showEdges: true; edgeColor: "#405c75" }
+        Box3D { x: (board.map.board.maxX + 0.15) * 100; y: 0; width: 30; height: 50; depth: (board.map.board.maxZ - board.map.board.minZ) * 100; color: "#192b40"; useToonShading: true; showEdges: true; edgeColor: "#405c75" }
+        Box3D { z: (board.map.board.maxZ + 0.15) * 100; y: 0; width: (board.map.board.maxX - board.map.board.minX + 0.6) * 100; height: 24; depth: 30; color: "#192b40"; useToonShading: true; showEdges: true; edgeColor: "#405c75" }
 
+        // Raised foundation and illuminated perimeter make the arena read as a datacenter diorama.
+        Box3D { y: -35; width: 2280; height: 30; depth: 1380; color: "#101b2d"; bevel: 0.08; showEdges: false }
+        Repeater3D {
+            model: 2
+            delegate: Box3D {
+                required property int index
+                x: index === 0 ? -1090 : 1090; y: 8
+                width: 8; height: 4; depth: 1270
+                color: board.sectorAccent; lighting: 0; showEdges: false; castsShadows: false
+            }
+        }
+        // Infrastructure lives behind the playable floor, leaving every route and build position clear.
+        Repeater3D {
+            model: 11
+            delegate: Node {
+                required property int index
+                x: -1000 + index * 200; z: -735
+                Box3D { width: 135; height: 185; depth: 90; color: "#122236"; showEdges: true; edgeColor: "#426078"; bevel: 0.04 }
+                Repeater3D {
+                    model: 5
+                    delegate: Node {
+                        required property int index
+                        y: 22 + index * 30; z: 47
+                        Box3D { width: 112; height: 20; depth: 3; color: "#2e455e"; showEdges: false }
+                        Box3D { x: 42; y: 5; z: 3; width: 7; height: 5; depth: 2; color: board.sectorAccent; lighting: 0; showEdges: false; castsShadows: false }
+                    }
+                }
+            }
+        }
         // ---- route: cable channel + travelling pulses ------------------------------------------
         Repeater3D {
             model: board.map.path.length - 1
@@ -119,9 +154,9 @@ Item {
                 readonly property real len: Math.hypot(b.x - a.x, b.z - a.z)
                 x: (a.x + b.x) / 2 * 100; z: (a.z + b.z) / 2 * 100
                 Box3D { y: 0; width: (horizontal ? len + board.map.pathWidth : board.map.pathWidth) * 100; height: 3; depth: (horizontal ? board.map.pathWidth : len + board.map.pathWidth) * 100
-                        color: "#6b7a94"; useToonShading: true; showEdges: false; receivesShadows: true; castsShadows: false }
+                        color: "#101c2b"; useToonShading: true; showEdges: false; receivesShadows: true; castsShadows: false }
                 Box3D { y: 3; width: (horizontal ? len + board.map.pathWidth - 0.3 : board.map.pathWidth - 0.3) * 100; height: 1; depth: (horizontal ? board.map.pathWidth - 0.3 : len + board.map.pathWidth - 0.3) * 100
-                        color: "#8b9bb5"; showEdges: false; lighting: 0.8; receivesShadows: true; castsShadows: false }
+                        color: "#36516a"; showEdges: false; lighting: 0.8; receivesShadows: true; castsShadows: false }
             }
         }
         Repeater3D {
@@ -131,10 +166,22 @@ Item {
                 readonly property var p: board.sim ? board.sim.posAt((board.simTime * 1.6 + index * board.pathLen / 10) % board.pathLen) : { x: 0, z: 0 }
                 x: p.x * 100; z: p.z * 100; y: 4
                 width: 22; height: 3; depth: 22; bevel: 0.5
-                color: "#5ab3f0"; showEdges: false; lighting: 0; castsShadows: false
+                color: board.sectorAccent; showEdges: false; lighting: 0; castsShadows: false
             }
         }
 
+        // Low-profile direction arrows explain the route even when the board is empty.
+        Repeater3D {
+            model: board.sim ? Math.floor(board.pathLen / 3) : 0
+            delegate: Node {
+                required property int index
+                readonly property var point: board.sim.posAt(index * 3 + 1)
+                x: point.x * 100; z: point.z * 100; y: 5
+                eulerRotation.y: Math.atan2(point.dx, point.dz) * 180 / Math.PI
+                Box3D { x: -7; width: 4; height: 1; depth: 21; eulerRotation.y: -40; color: "#6b94ab"; lighting: 0; showEdges: false; castsShadows: false }
+                Box3D { x: 7; width: 4; height: 1; depth: 21; eulerRotation.y: 40; color: "#6b94ab"; lighting: 0; showEdges: false; castsShadows: false }
+            }
+        }
         // ---- entrance portal ----------------------------------------------------------------------
         Node {
             x: board.map.portal.x * 100; z: board.map.portal.z * 100
@@ -164,7 +211,7 @@ Item {
                 x: modelData.x * 100; z: modelData.z * 100
                 visible: !isOccupied
                 Box3D { y: 0; width: 96; height: 6; depth: 96; bevel: 0.2
-                        color: isSelected ? "#5ab3f0" : "#8fc3f5"; useToonShading: true; showEdges: true; edgeColor: "#2f7ff2"; edgeThickness: 1.5; receivesShadows: true; castsShadows: false
+                        color: isSelected ? "#5ab3f0" : "#3a627c"; useToonShading: true; showEdges: true; edgeColor: "#2f7ff2"; edgeThickness: 1.5; receivesShadows: true; castsShadows: false
                         opacity: 1 }
                 Box3D { y: 8 + (board.reducedFx ? 0 : Math.sin(board.simTime * 3) * 2); width: 30; height: 6; depth: 30; bevel: 0.5; color: "#2f7ff2"; showEdges: false; lighting: 0; castsShadows: false }
                 Box3D { y: 6; width: 8; height: 8; depth: 40; color: "#2f7ff2"; showEdges: false; lighting: 0; castsShadows: false }
@@ -172,10 +219,16 @@ Item {
             }
         }
 
+        Node {
+            readonly property var site: board.socketById(board.selectedSocket) || board.buildCursor
+            visible: site !== null && board.selectedTower === 0 && (board.buildCursor !== null || board.selectedSocket.indexOf("floor:") === 0)
+            x: site ? site.x * 100 : 0; z: site ? site.z * 100 : 0
+            Box3D { width: 100; depth: 100; height: 5; y: 4; color: board.buildCursor && !board.cursorValid ? "#f27761" : board.sectorAccent; opacity: 0.7; lighting: 0; showEdges: false; castsShadows: false }
+        }
         // ---- range preview ring -----------------------------------------------------------------
         Node {
             id: rangeRing
-            readonly property var sock: board.socketById(board.selectedSocket)
+            readonly property var sock: board.socketById(board.selectedSocket) || board.buildCursor
             readonly property var tower: board.sim && board.selectedTower ? board.sim.towerById(board.selectedTower) : null
             readonly property string ttype: tower ? tower.type : board.previewType
             readonly property real radius: ttype && Towers.towers[ttype] ? Towers.towers[ttype].levels[tower ? tower.level : 0].range : 0
@@ -208,6 +261,16 @@ Item {
                     castsShadows: false }
         }
 
+        Node {
+            readonly property var zone: board.quarantineCursor || board.quarantineZone
+            visible: zone !== null
+            x: zone ? zone.x * 100 : 0; z: zone ? zone.z * 100 : 0
+            Model {
+                source: "#Cylinder"; y: 7; scale: Qt.vector3d(4.6, 0.025, 4.6)
+                materials: PrincipledMaterial { baseColor: "#b399ff"; opacity: board.quarantineCursor ? 0.25 : 0.18 + 0.06 * Math.sin(board.simTime * 5); alphaMode: PrincipledMaterial.Blend; lighting: PrincipledMaterial.NoLighting }
+                castsShadows: false; receivesShadows: false
+            }
+        }
         // ---- perimeter decoration -----------------------------------------------------------------
         Repeater3D {
             model: board.map.decor
@@ -268,6 +331,7 @@ Item {
         occupied = {}
         selectedSocket = ""; selectedTower = 0; previewType = ""; rebootCursor = null
         enemyCount = 0
+        quarantineCursor = null; quarantineZone = null; buildCursor = null
     }
     function spawnFx(kind, x, z, tone, radius) {
         if (reducedFx && (kind === "poof" || kind === "boost" || kind === "coin")) return
@@ -334,6 +398,13 @@ Item {
             tseen[t.id] = true; occ[t.socket] = true
         }
         for (var tid in towerVis) if (!tseen[tid]) { towerVis[tid].destroy(); delete towerVis[tid] }
+        // Hide suggested pads covered by towers built on nearby floor tiles as well.
+        for (var si = 0; si < map.sockets.length; si++) {
+            var suggested = map.sockets[si]
+            for (var ti = 0; ti < S.towers.length; ti++) {
+                if (Math.hypot(suggested.x - S.towers[ti].x, suggested.z - S.towers[ti].z) < 1.15) { occ[suggested.id] = true; break }
+            }
+        }
         occupied = occ
         // projectiles
         var pseen = {}
