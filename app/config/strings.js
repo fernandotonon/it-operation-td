@@ -57,11 +57,11 @@ var table = {
         play: "Jogar", howto: "Como jogar", settings: "Ajustes", back: "Voltar", resume: "Continuar", restart: "Reiniciar",
         quit: "Sair", ok: "Entendi", close: "Fechar",
         premise: "Sexta-feira, 17h. A equipe de TI já ia embora quando o painel de monitoramento acendeu.\nMantenha o datacenter online até o incidente ser resolvido!",
-        credits: "Créditos", health: "Saúde do Serviço", wave: "Onda", enemies: "Ameaças", remaining: "restantes",
+        credits: "Créditos", health: "Saúde", wave: "Onda", enemies: "Ameaças", remaining: "restantes",
         startWave: "Iniciar onda", nextWave: "Próxima onda", speedNormal: "1x", speedFast: "2x", pause: "Pausa", paused: "Jogo pausado",
         build: "Construir", upgrade: "Melhorar", sell: "Vender", cancel: "Cancelar", level: "Nível", max: "Máx.",
         range: "Alcance", damage: "Dano", rate: "Disparos/s", slow: "Lentidão", splash: "Área", boost: "Turbo", period: "A cada",
-        reboot: "Reboot de Emergência", rebootHint: "Toque no mapa: as torres na área reiniciam (3 s offline) e voltam limpas e mais rápidas.",
+        reboot: "Reboot", rebootHint: "Toque no mapa: as torres na área reiniciam (3 s offline) e voltam limpas e mais rápidas.",
         rebootReady: "Pronto", rebootCooldown: "Recarregando", rebootEmpty: "Nenhuma torre nessa área.",
         noCredits: "Créditos insuficientes.", occupied: "Este ponto já tem uma torre.", placeHere: "Toque em um ponto azul para construir.",
         victory: "Incidente resolvido!", victoryText: "O datacenter continuou online. Bom fim de semana, equipe!",
@@ -110,11 +110,11 @@ var table = {
         play: "Play", howto: "How to play", settings: "Settings", back: "Back", resume: "Resume", restart: "Restart",
         quit: "Quit", ok: "Got it", close: "Close",
         premise: "Friday, 5 pm. The IT team was about to leave when the monitoring dashboard lit up.\nKeep the datacenter online until the incident is resolved!",
-        credits: "Credits", health: "Service Health", wave: "Wave", enemies: "Threats", remaining: "left",
+        credits: "Credits", health: "Health", wave: "Wave", enemies: "Threats", remaining: "left",
         startWave: "Start wave", nextWave: "Next wave", speedNormal: "1x", speedFast: "2x", pause: "Pause", paused: "Game paused",
         build: "Build", upgrade: "Upgrade", sell: "Sell", cancel: "Cancel", level: "Level", max: "Max",
         range: "Range", damage: "Damage", rate: "Shots/s", slow: "Slow", splash: "Area", boost: "Boost", period: "Every",
-        reboot: "Emergency Reboot", rebootHint: "Tap the map: towers in the area reboot (3 s offline), then come back clean and faster.",
+        reboot: "Reboot", rebootHint: "Tap the map: towers in the area reboot (3 s offline), then come back clean and faster.",
         rebootReady: "Ready", rebootCooldown: "Recharging", rebootEmpty: "No tower in that area.",
         noCredits: "Not enough credits.", occupied: "That socket already has a tower.", placeHere: "Tap a blue socket to build.",
         victory: "Incident resolved!", victoryText: "The datacenter stayed online. Have a great weekend, team!",
@@ -163,11 +163,11 @@ var table = {
         play: "Spielen", howto: "Anleitung", settings: "Einstellungen", back: "Zurück", resume: "Weiter", restart: "Neu starten",
         quit: "Beenden", ok: "Verstanden", close: "Schließen",
         premise: "Freitag, 17 Uhr. Das IT-Team wollte gerade gehen, als das Monitoring-Dashboard aufleuchtete.\nHalte das Rechenzentrum online, bis der Vorfall behoben ist!",
-        credits: "Credits", health: "Dienstzustand", wave: "Welle", enemies: "Bedrohungen", remaining: "übrig",
+        credits: "Credits", health: "Status", wave: "Welle", enemies: "Bedrohungen", remaining: "übrig",
         startWave: "Welle starten", nextWave: "Nächste Welle", speedNormal: "1x", speedFast: "2x", pause: "Pause", paused: "Spiel pausiert",
         build: "Bauen", upgrade: "Aufrüsten", sell: "Verkaufen", cancel: "Abbrechen", level: "Stufe", max: "Max.",
         range: "Reichweite", damage: "Schaden", rate: "Schüsse/s", slow: "Verlangsamung", splash: "Fläche", boost: "Turbo", period: "Alle",
-        reboot: "Notfall-Neustart", rebootHint: "Tippe auf die Karte: die Türme im Bereich starten neu (3 s offline) und kommen sauber und schneller zurück.",
+        reboot: "Neustart", rebootHint: "Tippe auf die Karte: die Türme im Bereich starten neu (3 s offline) und kommen sauber und schneller zurück.",
         rebootReady: "Bereit", rebootCooldown: "Lädt auf", rebootEmpty: "Kein Turm in diesem Bereich.",
         noCredits: "Nicht genug Credits.", occupied: "Auf diesem Platz steht schon ein Turm.", placeHere: "Tippe auf einen blauen Platz, um zu bauen.",
         victory: "Vorfall behoben!", victoryText: "Das Rechenzentrum blieb online. Schönes Wochenende, Team!",
@@ -216,11 +216,11 @@ var table = {
         play: "Играть", howto: "Как играть", settings: "Настройки", back: "Назад", resume: "Продолжить", restart: "Заново",
         quit: "Выйти", ok: "Понятно", close: "Закрыть",
         premise: "Пятница, 17:00. Айтишники уже собирались домой, когда загорелась панель мониторинга.\nДержи дата-центр онлайн, пока инцидент не закроют!",
-        credits: "Кредиты", health: "Здоровье сервиса", wave: "Волна", enemies: "Угрозы", remaining: "осталось",
-        startWave: "Начать волну", nextWave: "Следующая волна", speedNormal: "1x", speedFast: "2x", pause: "Пауза", paused: "Игра на паузе",
+        credits: "Кредиты", health: "Здоровье", wave: "Волна", enemies: "Угрозы", remaining: "осталось",
+        startWave: "Начать", nextWave: "Следующая волна", speedNormal: "1x", speedFast: "2x", pause: "Пауза", paused: "Игра на паузе",
         build: "Строить", upgrade: "Улучшить", sell: "Продать", cancel: "Отмена", level: "Уровень", max: "Макс.",
         range: "Дальность", damage: "Урон", rate: "Выстр./с", slow: "Замедление", splash: "Область", boost: "Ускорение", period: "Каждые",
-        reboot: "Аварийный ребут", rebootHint: "Нажми на карту: башни в области перезагружаются (3 с офлайн) и возвращаются чистыми и быстрее.",
+        reboot: "Ребут", rebootHint: "Нажми на карту: башни в области перезагружаются (3 с офлайн) и возвращаются чистыми и быстрее.",
         rebootReady: "Готово", rebootCooldown: "Перезарядка", rebootEmpty: "В этой области нет башен.",
         noCredits: "Не хватает кредитов.", occupied: "Здесь уже стоит башня.", placeHere: "Нажми на синюю точку, чтобы строить.",
         victory: "Инцидент закрыт!", victoryText: "Дата-центр остался онлайн. Хороших выходных, команда!",
@@ -269,11 +269,11 @@ var table = {
         play: "Jouer", howto: "Comment jouer", settings: "Réglages", back: "Retour", resume: "Reprendre", restart: "Recommencer",
         quit: "Quitter", ok: "Compris", close: "Fermer",
         premise: "Vendredi, 17 h. L'équipe IT allait partir quand le tableau de supervision s'est allumé.\nGarde le datacenter en ligne jusqu'à la fin de l'incident !",
-        credits: "Crédits", health: "Santé du service", wave: "Vague", enemies: "Menaces", remaining: "restantes",
-        startWave: "Lancer la vague", nextWave: "Vague suivante", speedNormal: "1x", speedFast: "2x", pause: "Pause", paused: "Partie en pause",
+        credits: "Crédits", health: "Santé", wave: "Vague", enemies: "Menaces", remaining: "restantes",
+        startWave: "Lancer", nextWave: "Vague suivante", speedNormal: "1x", speedFast: "2x", pause: "Pause", paused: "Partie en pause",
         build: "Construire", upgrade: "Améliorer", sell: "Vendre", cancel: "Annuler", level: "Niveau", max: "Max.",
         range: "Portée", damage: "Dégâts", rate: "Tirs/s", slow: "Ralentissement", splash: "Zone", boost: "Boost", period: "Toutes les",
-        reboot: "Reboot d'urgence", rebootHint: "Touche la carte : les tours de la zone redémarrent (3 s hors ligne), puis reviennent nettoyées et plus rapides.",
+        reboot: "Reboot", rebootHint: "Touche la carte : les tours de la zone redémarrent (3 s hors ligne), puis reviennent nettoyées et plus rapides.",
         rebootReady: "Prêt", rebootCooldown: "Recharge", rebootEmpty: "Aucune tour dans cette zone.",
         noCredits: "Pas assez de crédits.", occupied: "Cet emplacement a déjà une tour.", placeHere: "Touche un emplacement bleu pour construire.",
         victory: "Incident résolu !", victoryText: "Le datacenter est resté en ligne. Bon week-end, l'équipe !",
@@ -322,11 +322,11 @@ var table = {
         play: "Graj", howto: "Jak grać", settings: "Ustawienia", back: "Wstecz", resume: "Wznów", restart: "Od nowa",
         quit: "Wyjdź", ok: "Jasne", close: "Zamknij",
         premise: "Piątek, 17:00. Dział IT już wychodził, gdy zapalił się panel monitoringu.\nUtrzymaj centrum danych online, aż incydent zostanie rozwiązany!",
-        credits: "Kredyty", health: "Kondycja usługi", wave: "Fala", enemies: "Zagrożenia", remaining: "zostało",
-        startWave: "Rozpocznij falę", nextWave: "Następna fala", speedNormal: "1x", speedFast: "2x", pause: "Pauza", paused: "Gra wstrzymana",
+        credits: "Kredyty", health: "Kondycja", wave: "Fala", enemies: "Zagrożenia", remaining: "zostało",
+        startWave: "Start fali", nextWave: "Następna fala", speedNormal: "1x", speedFast: "2x", pause: "Pauza", paused: "Gra wstrzymana",
         build: "Buduj", upgrade: "Ulepsz", sell: "Sprzedaj", cancel: "Anuluj", level: "Poziom", max: "Maks.",
         range: "Zasięg", damage: "Obrażenia", rate: "Strzały/s", slow: "Spowolnienie", splash: "Obszar", boost: "Turbo", period: "Co",
-        reboot: "Restart awaryjny", rebootHint: "Stuknij mapę: wieże w obszarze restartują się (3 s offline) i wracają czyste i szybsze.",
+        reboot: "Restart", rebootHint: "Stuknij mapę: wieże w obszarze restartują się (3 s offline) i wracają czyste i szybsze.",
         rebootReady: "Gotowe", rebootCooldown: "Ładowanie", rebootEmpty: "W tym obszarze nie ma wieży.",
         noCredits: "Za mało kredytów.", occupied: "Na tym polu już stoi wieża.", placeHere: "Stuknij niebieskie pole, aby budować.",
         victory: "Incydent rozwiązany!", victoryText: "Centrum danych zostało online. Miłego weekendu, ekipo!",
@@ -375,11 +375,11 @@ var table = {
         play: "Oyna", howto: "Nasıl oynanır", settings: "Ayarlar", back: "Geri", resume: "Devam", restart: "Yeniden başlat",
         quit: "Çık", ok: "Anladım", close: "Kapat",
         premise: "Cuma, 17:00. BT ekibi çıkmak üzereyken izleme paneli yandı.\nOlay çözülene kadar veri merkezini çevrimiçi tut!",
-        credits: "Kredi", health: "Hizmet sağlığı", wave: "Dalga", enemies: "Tehditler", remaining: "kaldı",
-        startWave: "Dalgayı başlat", nextWave: "Sonraki dalga", speedNormal: "1x", speedFast: "2x", pause: "Duraklat", paused: "Oyun duraklatıldı",
+        credits: "Kredi", health: "Sağlık", wave: "Dalga", enemies: "Tehditler", remaining: "kaldı",
+        startWave: "Başlat", nextWave: "Sonraki dalga", speedNormal: "1x", speedFast: "2x", pause: "Duraklat", paused: "Oyun duraklatıldı",
         build: "Kur", upgrade: "Yükselt", sell: "Sat", cancel: "İptal", level: "Seviye", max: "Maks.",
         range: "Menzil", damage: "Hasar", rate: "Atış/sn", slow: "Yavaşlatma", splash: "Alan", boost: "Hızlandırma", period: "Her",
-        reboot: "Acil reboot", rebootHint: "Haritaya dokun: alandaki kuleler yeniden başlar (3 sn çevrimdışı), sonra temiz ve daha hızlı döner.",
+        reboot: "Reboot", rebootHint: "Haritaya dokun: alandaki kuleler yeniden başlar (3 sn çevrimdışı), sonra temiz ve daha hızlı döner.",
         rebootReady: "Hazır", rebootCooldown: "Doluyor", rebootEmpty: "Bu alanda kule yok.",
         noCredits: "Yeterli kredi yok.", occupied: "Bu yuvada zaten bir kule var.", placeHere: "Kurmak için mavi bir yuvaya dokun.",
         victory: "Olay çözüldü!", victoryText: "Veri merkezi çevrimiçi kaldı. İyi hafta sonları, ekip!",
@@ -428,11 +428,11 @@ var table = {
         play: "Jugar", howto: "Cómo jugar", settings: "Ajustes", back: "Volver", resume: "Continuar", restart: "Reiniciar",
         quit: "Salir", ok: "Entendido", close: "Cerrar",
         premise: "Viernes, 17:00. El equipo de TI ya se iba cuando se encendió el panel de monitorización.\n¡Mantén el datacenter en línea hasta que se resuelva el incidente!",
-        credits: "Créditos", health: "Salud del servicio", wave: "Oleada", enemies: "Amenazas", remaining: "restantes",
+        credits: "Créditos", health: "Salud", wave: "Oleada", enemies: "Amenazas", remaining: "restantes",
         startWave: "Iniciar oleada", nextWave: "Siguiente oleada", speedNormal: "1x", speedFast: "2x", pause: "Pausa", paused: "Juego en pausa",
         build: "Construir", upgrade: "Mejorar", sell: "Vender", cancel: "Cancelar", level: "Nivel", max: "Máx.",
         range: "Alcance", damage: "Daño", rate: "Disparos/s", slow: "Ralentización", splash: "Área", boost: "Impulso", period: "Cada",
-        reboot: "Reinicio de emergencia", rebootHint: "Toca el mapa: las torres de la zona se reinician (3 s fuera de línea) y vuelven limpias y más rápidas.",
+        reboot: "Reinicio", rebootHint: "Toca el mapa: las torres de la zona se reinician (3 s fuera de línea) y vuelven limpias y más rápidas.",
         rebootReady: "Listo", rebootCooldown: "Recargando", rebootEmpty: "No hay ninguna torre en esa zona.",
         noCredits: "Créditos insuficientes.", occupied: "Ese punto ya tiene una torre.", placeHere: "Toca un punto azul para construir.",
         victory: "¡Incidente resuelto!", victoryText: "El datacenter siguió en línea. ¡Buen fin de semana, equipo!",
@@ -481,11 +481,11 @@ var table = {
         play: "Gioca", howto: "Come si gioca", settings: "Impostazioni", back: "Indietro", resume: "Riprendi", restart: "Ricomincia",
         quit: "Esci", ok: "Capito", close: "Chiudi",
         premise: "Venerdì, ore 17. Il team IT stava per andare via quando si è acceso il pannello di monitoraggio.\nTieni il datacenter online finché l'incidente non è risolto!",
-        credits: "Crediti", health: "Salute del servizio", wave: "Ondata", enemies: "Minacce", remaining: "rimaste",
-        startWave: "Avvia ondata", nextWave: "Ondata successiva", speedNormal: "1x", speedFast: "2x", pause: "Pausa", paused: "Partita in pausa",
+        credits: "Crediti", health: "Salute", wave: "Ondata", enemies: "Minacce", remaining: "rimaste",
+        startWave: "Avvia", nextWave: "Ondata successiva", speedNormal: "1x", speedFast: "2x", pause: "Pausa", paused: "Partita in pausa",
         build: "Costruisci", upgrade: "Potenzia", sell: "Vendi", cancel: "Annulla", level: "Livello", max: "Max.",
         range: "Gittata", damage: "Danno", rate: "Colpi/s", slow: "Rallentamento", splash: "Area", boost: "Spinta", period: "Ogni",
-        reboot: "Riavvio di emergenza", rebootHint: "Tocca la mappa: le torri nell'area si riavviano (3 s offline) e tornano pulite e più veloci.",
+        reboot: "Riavvio", rebootHint: "Tocca la mappa: le torri nell'area si riavviano (3 s offline) e tornano pulite e più veloci.",
         rebootReady: "Pronto", rebootCooldown: "Ricarica", rebootEmpty: "Nessuna torre in quell'area.",
         noCredits: "Crediti insufficienti.", occupied: "Quel punto ha già una torre.", placeHere: "Tocca un punto blu per costruire.",
         victory: "Incidente risolto!", victoryText: "Il datacenter è rimasto online. Buon fine settimana, squadra!",
@@ -541,7 +541,7 @@ Object.assign(table.en, {
     "quarantine": "Quarantine",
     "quarantineHint": "Choose an area: slow threats by 50% and reveal hidden packets for 5 s. Cooldown: 35 s.",
     "ready": "Ready",
-    "medalGoal": "★ Clear · ★★ 15+ health · ★★★ Full health"
+    "medalGoal": "★ Clear\n★★ 15+ health\n★★★ Full health"
 })
 Object.assign(table.pt_BR, {
     "targeting": "Alvo",
@@ -555,7 +555,7 @@ Object.assign(table.pt_BR, {
     "quarantine": "Quarentena",
     "quarantineHint": "Escolha uma área: reduz a velocidade em 50% e revela pacotes ocultos por 5 s. Recarga: 35 s.",
     "ready": "Pronto",
-    "medalGoal": "★ Vitória · ★★ 15+ de saúde · ★★★ Saúde total"
+    "medalGoal": "★ Vitória\n★★ 15+ de saúde\n★★★ Saúde total"
 })
 Object.assign(table.de, {
     "targeting": "Ziel",
@@ -569,7 +569,7 @@ Object.assign(table.de, {
     "quarantine": "Quarantäne",
     "quarantineHint": "Wähle einen Bereich: 50% langsamer und versteckte Pakete 5 s sichtbar. Abklingzeit: 35 s.",
     "ready": "Bereit",
-    "medalGoal": "★ Sieg · ★★ 15+ Gesundheit · ★★★ Volle Gesundheit"
+    "medalGoal": "★ Sieg\n★★ 15+ Gesundheit\n★★★ Volle Gesundheit"
 })
 Object.assign(table.ru, {
     "targeting": "Цель",
@@ -583,7 +583,7 @@ Object.assign(table.ru, {
     "quarantine": "Карантин",
     "quarantineHint": "Выбери область: замедление на 50% и раскрытие скрытых пакетов на 5 с. Перезарядка: 35 с.",
     "ready": "Готово",
-    "medalGoal": "★ Победа · ★★ 15+ здоровья · ★★★ Полное здоровье"
+    "medalGoal": "★ Победа\n★★ 15+ здоровья\n★★★ Полное здоровье"
 })
 Object.assign(table.fr, {
     "targeting": "Cible",
@@ -597,7 +597,7 @@ Object.assign(table.fr, {
     "quarantine": "Quarantaine",
     "quarantineHint": "Choisis une zone : ralentit de 50% et révèle les paquets cachés pendant 5 s. Recharge : 35 s.",
     "ready": "Prêt",
-    "medalGoal": "★ Victoire · ★★ 15+ de santé · ★★★ Santé maximale"
+    "medalGoal": "★ Victoire\n★★ 15+ de santé\n★★★ Santé max."
 })
 Object.assign(table.pl, {
     "targeting": "Cel",
@@ -611,7 +611,7 @@ Object.assign(table.pl, {
     "quarantine": "Kwarantanna",
     "quarantineHint": "Wybierz obszar: spowolnienie o 50% i ujawnienie ukrytych pakietów na 5 s. Odnowienie: 35 s.",
     "ready": "Gotowe",
-    "medalGoal": "★ Wygrana · ★★ 15+ zdrowia · ★★★ Pełne zdrowie"
+    "medalGoal": "★ Wygrana\n★★ 15+ zdrowia\n★★★ Pełne zdrowie"
 })
 Object.assign(table.tr, {
     "targeting": "Hedef",
@@ -625,7 +625,7 @@ Object.assign(table.tr, {
     "quarantine": "Karantina",
     "quarantineHint": "Bir alan seç: 5 sn boyunca %50 yavaşlatır ve gizli paketleri açığa çıkarır. Bekleme: 35 sn.",
     "ready": "Hazır",
-    "medalGoal": "★ Zafer · ★★ 15+ sağlık · ★★★ Tam sağlık"
+    "medalGoal": "★ Zafer\n★★ 15+ sağlık\n★★★ Tam sağlık"
 })
 Object.assign(table.es, {
     "targeting": "Objetivo",
@@ -639,7 +639,7 @@ Object.assign(table.es, {
     "quarantine": "Cuarentena",
     "quarantineHint": "Elige una zona: ralentiza un 50% y revela paquetes ocultos durante 5 s. Recarga: 35 s.",
     "ready": "Listo",
-    "medalGoal": "★ Victoria · ★★ 15+ de salud · ★★★ Salud completa"
+    "medalGoal": "★ Victoria\n★★ 15+ de salud\n★★★ Salud completa"
 })
 Object.assign(table.it, {
     "targeting": "Bersaglio",
@@ -653,7 +653,7 @@ Object.assign(table.it, {
     "quarantine": "Quarantena",
     "quarantineHint": "Scegli un’area: rallenta del 50% e rivela pacchetti nascosti per 5 s. Ricarica: 35 s.",
     "ready": "Pronto",
-    "medalGoal": "★ Vittoria · ★★ 15+ salute · ★★★ Salute piena"
+    "medalGoal": "★ Vittoria\n★★ 15+ salute\n★★★ Salute piena"
 })
 
 // Reuse the localized ability explanation in the tutorial.

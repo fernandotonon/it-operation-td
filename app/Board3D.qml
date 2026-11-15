@@ -226,27 +226,38 @@ Item {
             Box3D { width: 100; depth: 100; height: 5; y: 4; color: board.buildCursor && !board.cursorValid ? "#f27761" : board.sectorAccent; opacity: 0.7; lighting: 0; showEdges: false; castsShadows: false }
         }
         // ---- range preview ring -----------------------------------------------------------------
+        // Matches what players actually see get hit:
+        //   • acquisition uses center distance <= range + enemy.radius (Sim.inRange)
+        //   • splash towers also damage out to ~range + splash around the impact
+        //   • homing pulses keep tracking for a short travel, so a small lead pad is included
+        // #Cylinder diameter is 100 → scale = (metres * 100) / 50 = metres * 2
         Node {
             id: rangeRing
             readonly property var sock: board.socketById(board.selectedSocket) || board.buildCursor
             readonly property var tower: board.sim && board.selectedTower ? board.sim.towerById(board.selectedTower) : null
             readonly property string ttype: tower ? tower.type : board.previewType
-            readonly property real radius: ttype && Towers.towers[ttype] ? Towers.towers[ttype].levels[tower ? tower.level : 0].range : 0
+            readonly property var lvl: ttype && Towers.towers[ttype] ? Towers.towers[ttype].levels[tower ? tower.level : 0] : null
+            readonly property real baseRange: lvl ? lvl.range : 0
+            readonly property real splash: lvl && lvl.splash ? lvl.splash : 0
+            readonly property real bodyPad: 0.5    // typical enemy.radius used by Sim.inRange
+            readonly property real leadPad: splash > 0 ? 0 : 0.7  // homing pulse travel while the target keeps moving
+            readonly property real radius: baseRange > 0 ? baseRange + splash + bodyPad + leadPad : 0
             readonly property real r: Math.max(radius, 0.05) * 100
+            readonly property real cylScale: radius * 2
             visible: radius > 0 && (tower || sock)
             x: (tower ? tower.x : sock ? sock.x : 0) * 100; z: (tower ? tower.z : sock ? sock.z : 0) * 100
-            Model { source: "#Cylinder"; y: 1; scale: Qt.vector3d(rangeRing.radius * 2, 0.01, rangeRing.radius * 2)
-                    materials: PrincipledMaterial { baseColor: rangeRing.ttype && Towers.towers[rangeRing.ttype] ? Towers.towers[rangeRing.ttype].accent : "white"; opacity: 0.18; alphaMode: PrincipledMaterial.Blend; lighting: PrincipledMaterial.NoLighting }
+            Model { source: "#Cylinder"; y: 1; scale: Qt.vector3d(rangeRing.cylScale, 0.012, rangeRing.cylScale)
+                    materials: PrincipledMaterial { baseColor: rangeRing.ttype && Towers.towers[rangeRing.ttype] ? Towers.towers[rangeRing.ttype].accent : "white"; opacity: 0.28; alphaMode: PrincipledMaterial.Blend; lighting: PrincipledMaterial.NoLighting }
                     castsShadows: false; receivesShadows: false }
             // ring outline from thin box segments (Poly3D with a hole ring stalls the WebAssembly build)
             Repeater3D {
-                model: 48
+                model: 64
                 delegate: Box3D {
                     required property int index
-                    readonly property real a: index / 48 * 6.2832
-                    x: Math.cos(a) * (rangeRing.r - 3); z: Math.sin(a) * (rangeRing.r - 3); y: 2
+                    readonly property real a: index / 64 * 6.2832
+                    x: Math.cos(a) * rangeRing.r; z: Math.sin(a) * rangeRing.r; y: 2.5
                     eulerRotation.y: -(a * 180 / Math.PI + 90)     // tangent to the circle
-                    width: rangeRing.r * 6.2832 / 48 + 2; height: 1.5; depth: 6
+                    width: rangeRing.r * 6.2832 / 64 + 4; height: 2; depth: 8
                     color: rangeRing.ttype && Towers.towers[rangeRing.ttype] ? Towers.towers[rangeRing.ttype].accent : "white"
                     lighting: 0; showEdges: false; castsShadows: false; receivesShadows: false
                 }

@@ -14,28 +14,39 @@ Item {
     readonly property real k: compact ? 0.78 : 1
 
     // ---- top bar --------------------------------------------------------------------------------
+    readonly property real topBarRightReserve: 56 * hud.k * 3 + 40
     Panel {
         id: topBar
-        x: 8; y: 8; height: hud.compact ? 46 : 64
-        width: Math.min(parent.width - 16, topRow.implicitWidth + 24)
+        x: 8; y: 8
+        height: Math.max(hud.compact ? 46 : 64, topRow.implicitHeight + 16)
+        width: Math.min(parent.width - topBarRightReserve - 16, topRow.implicitWidth + 24)
+        clip: true
         Row {
             id: topRow
-            anchors.verticalCenter: parent.verticalCenter; x: 12; spacing: hud.compact ? 12 : 22
+            anchors.verticalCenter: parent.verticalCenter; x: 12; spacing: hud.compact ? 10 : 18
             Row { spacing: 8; anchors.verticalCenter: parent.verticalCenter
                 Rectangle { width: 30 * hud.k; height: width; radius: width / 2; color: "#443d2d"; border.color: "#efc56e"; anchors.verticalCenter: parent.verticalCenter
                     Text { anchors.centerIn: parent; text: "●"; color: "#efc56e"; font.pixelSize: 20 * hud.k }
                 }
                 Text { text: hud.v, game ? game.credits : 0; color: "#ffe9a8"; font.pixelSize: 26 * hud.k; font.bold: true; anchors.verticalCenter: parent.verticalCenter } }
-            Row { spacing: 8; anchors.verticalCenter: parent.verticalCenter
-                Text { text: "♥"; color: "#ff8395"; font.pixelSize: 31 * hud.k; anchors.verticalCenter: parent.verticalCenter }
+            Row { spacing: 6; anchors.verticalCenter: parent.verticalCenter
+                Text { text: "♥"; color: "#ff8395"; font.pixelSize: 28 * hud.k; anchors.verticalCenter: parent.verticalCenter }
                 Text { text: hud.v, game ? game.health : 0; color: game && game.health <= 5 ? "#ff8a8a" : "white"; font.pixelSize: 26 * hud.k; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
-                Text { visible: !hud.compact; text: Strings.t("health"); color: "#8fa3c0"; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter; width: 70; wrapMode: Text.WordWrap } }
-            Column { anchors.verticalCenter: parent.verticalCenter
-                Text { text: Strings.t("stage") + " " + (game ? game.stageIndex + 1 : 1) + " · " + Strings.t("wave"); color: "#8fa3c0"; font.pixelSize: 13 * hud.k }
-                Text { text: (game ? (game.phase === "build" ? Math.min(game.wave + 1, game.waveCount) : game.wave) : 1) + " / " + (game ? game.waveCount : 15); color: "white"; font.pixelSize: 22 * hud.k; font.bold: true } }
-            Column { anchors.verticalCenter: parent.verticalCenter
-                Text { text: Strings.t("enemies"); color: "#8fa3c0"; font.pixelSize: 13 * hud.k }
-                Text { text: hud.v, (game ? game.remaining : 0) + (hud.compact ? "" : " " + Strings.t("remaining")); color: "white"; font.pixelSize: 22 * hud.k; font.bold: true } }
+                Text { visible: !hud.compact; text: Strings.t("health"); color: "#8fa3c0"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter; width: 72; wrapMode: Text.WordWrap; maximumLineCount: 2 } }
+            Column {
+                anchors.verticalCenter: parent.verticalCenter; spacing: 1
+                Text { text: Strings.t("stage") + " " + (game ? game.stageIndex + 1 : 1) + " · " + Strings.t("wave")
+                       color: "#8fa3c0"; font.pixelSize: 12 * hud.k; width: Math.min(implicitWidth, 140); elide: Text.ElideRight }
+                Text { text: (game ? (game.phase === "build" ? Math.min(game.wave + 1, game.waveCount) : game.wave) : 1) + " / " + (game ? game.waveCount : 15)
+                       color: "white"; font.pixelSize: 20 * hud.k; font.bold: true }
+            }
+            Column {
+                anchors.verticalCenter: parent.verticalCenter; spacing: 1
+                Text { text: Strings.t("enemies"); color: "#8fa3c0"; font.pixelSize: 12 * hud.k; width: Math.min(implicitWidth, 120); elide: Text.ElideRight }
+                Text { text: hud.v, (game ? game.remaining : 0) + (hud.compact ? "" : " " + Strings.t("remaining"))
+                       color: "white"; font.pixelSize: 18 * hud.k; font.bold: true
+                       width: Math.min(implicitWidth, 160); elide: Text.ElideRight }
+            }
         }
     }
     Row {
@@ -47,12 +58,14 @@ Item {
 
     // Always-visible operation context and an honest boss health meter.
     Column {
-        x: 14; y: hud.compact ? 61 : 86; spacing: 5
-        Text { text: game ? Strings.t("stage_" + game.stage.id) : ""; color: "#c7dfef"; font.pixelSize: hud.compact ? 13 : 17; font.bold: true }
-        Rectangle { width: hud.compact ? 155 : 225; height: 3; color: "#34495f"
+        x: 14; y: topBar.y + topBar.height + 8; spacing: 5
+        Text { text: game ? Strings.t("stage_" + game.stage.id) : ""; color: "#c7dfef"; font.pixelSize: hud.compact ? 13 : 17; font.bold: true
+               width: Math.min(280, hud.width * 0.4); wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight }
+        Rectangle { width: hud.compact ? 155 : 240; height: 3; color: "#34495f"
             Rectangle { height: parent.height; width: parent.width * (game ? game.wave / game.waveCount : 0); color: "#42d9d0" }
         }
-        Text { text: Strings.t("medalGoal"); visible: !hud.compact; color: "#809bb4"; font.pixelSize: 12 }
+        Text { text: Strings.t("medalGoal"); visible: !hud.compact; color: "#809bb4"; font.pixelSize: 11
+               width: 260; wrapMode: Text.WordWrap; lineHeight: 1.15 }
     }
     Panel {
         visible: hud.playing && game.bossMaxHealth > 0
@@ -68,38 +81,49 @@ Item {
     Panel {
         visible: hud.playing && game.waveAnnouncement !== ""
         anchors.horizontalCenter: parent.horizontalCenter; y: parent.height * 0.23
-        width: 260; height: 58; border.color: "#42d9d0"
-        Text { anchors.centerIn: parent; text: game ? game.waveAnnouncement : ""; font.pixelSize: 25; font.bold: true; color: "#c9fff3" }
+        width: Math.min(parent.width - 48, Math.max(240, Math.min(420, announceTxt.implicitWidth + 40)))
+        height: Math.max(52, announceTxt.implicitHeight + 24); border.color: "#42d9d0"; clip: true
+        Text { id: announceTxt; anchors.centerIn: parent; width: parent.width - 28; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter
+               text: game ? game.waveAnnouncement : ""; font.pixelSize: 20; font.bold: true; color: "#c9fff3" }
     }
-    // ---- wave card (build phase) -----------------------------------------------------------------
+    // ---- wave card (build phase / between waves) -------------------------------------------------
     Panel {
         id: waveCard
         visible: hud.playing && game.phase === "build"
         anchors.right: parent.right; anchors.rightMargin: 8; anchors.bottom: parent.bottom; anchors.bottomMargin: 8
-        width: hud.compact ? Math.min(250, parent.width * 0.36) : Math.min(360, parent.width * 0.4); height: waveCol.implicitHeight + (hud.compact ? 16 : 28)
+        width: hud.compact ? Math.min(280, parent.width * 0.46) : Math.min(400, parent.width * 0.44)
+        height: waveCol.implicitHeight + (hud.compact ? 16 : 24)
+        clip: true
         Column {
             id: waveCol
-            anchors.centerIn: parent; width: parent.width - (hud.compact ? 16 : 28); spacing: hud.compact ? 4 : 8
-            Text { text: Strings.t("wave") + " " + ((game ? game.wave : 0) + 1) + " · " + Strings.t("incoming"); color: "#8fa3c0"; font.pixelSize: 14 * hud.k }
-            Text { text: game ? game.nextWaveIntro() : ""; color: "white"; font.pixelSize: 18 * hud.k; font.bold: true; width: parent.width; wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight }
+            anchors.centerIn: parent; width: parent.width - (hud.compact ? 16 : 24); spacing: hud.compact ? 4 : 8
+            Text { text: Strings.t("wave") + " " + ((game ? game.wave : 0) + 1) + " · " + Strings.t("incoming"); color: "#8fa3c0"; font.pixelSize: 13 * hud.k
+                   width: parent.width; wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight }
+            Text { text: game ? game.nextWaveIntro() : ""; color: "white"; font.pixelSize: 15 * hud.k; font.bold: true
+                   width: parent.width; wrapMode: Text.WordWrap; maximumLineCount: 4; elide: Text.ElideRight }
             Row { spacing: 6
                 Repeater { model: hud.v, game ? game.previewNextWave() : []
                     EnemyIcon { etype: modelData.type; count: modelData.count; scale: hud.k; width: 56 * hud.k; height: 64 * hud.k; transformOrigin: Item.TopLeft } } }
-            BigButton { text: Strings.t("startWave"); sub: hud.compact ? "" : "[space]"; primary: true; tone: "#3fd07a"; width: parent.width; implicitHeight: hud.compact ? 44 : 64; onClicked: game.requestStartWave() }
+            BigButton { text: Strings.t("startWave"); sub: hud.compact ? "" : "[space]"; primary: true; tone: "#3fd07a"; width: parent.width; implicitHeight: hud.compact ? 44 : 56; onClicked: game.requestStartWave() }
         }
     }
 
     // ---- reboot button ----------------------------------------------------------------------------------
     Panel {
+        id: rebootPanel
         visible: hud.playing
         anchors.right: parent.right; anchors.rightMargin: 8; anchors.bottom: parent.bottom
         anchors.bottomMargin: waveCard.visible ? waveCard.height + 14 : 8
-        width: hud.compact ? 170 : 220; height: hud.compact ? 66 : 88
+        width: hud.compact ? Math.min(210, parent.width * 0.44) : 260
+        height: rebootCol.implicitHeight + 16
+        clip: true
         Column {
+            id: rebootCol
             anchors.centerIn: parent; spacing: 4; width: parent.width - 16
             BigButton {
-                width: parent.width; implicitHeight: hud.compact ? 42 : 64
-                text: hud.compact ? Strings.t("rebootShort") : Strings.t("reboot")
+                width: parent.width
+                // Short label fits every language; full name lives in rebootHint while aiming.
+                text: Strings.t("reboot")
                 sub: game && game.rebootMode ? Strings.t("cancel") : game && game.rebootReady ? Strings.t("rebootReady") + " [R]" : Strings.t("rebootCooldown") + " " + Math.ceil(game ? game.rebootLeft : 0) + " s"
                 tone: "#2f7ff2"; checked: game && game.rebootMode; enabledLook: game && (game.rebootReady || game.rebootMode)
                 onClicked: game.toggleRebootMode()
@@ -109,12 +133,16 @@ Item {
         }
     }
     Panel {
+        id: quarantinePanel
         visible: hud.playing && game.phase === "wave"
         anchors.right: parent.right; anchors.rightMargin: 8; anchors.bottom: parent.bottom
-        anchors.bottomMargin: hud.compact ? 80 : 102
-        width: hud.compact ? 170 : 220; height: hud.compact ? 64 : 76
+        anchors.bottomMargin: rebootPanel.height + 14
+        width: rebootPanel.width
+        height: Math.max(hud.compact ? 64 : 72, quarantineBtn.implicitHeight + 16)
+        clip: true
         BigButton {
-            anchors.fill: parent; anchors.margins: 8
+            id: quarantineBtn
+            anchors.centerIn: parent; width: parent.width - 16
             text: Strings.t("quarantine"); sub: game && game.quarantineMode ? Strings.t("cancel") : game && game.quarantineLeft > 0 ? Math.ceil(game.quarantineLeft) + " s" : "[Q] · " + Strings.t("ready")
             tone: "#8872cf"; checked: game && game.quarantineMode; enabledLook: game && game.quarantineLeft <= 0
             onClicked: game.toggleQuarantine()
@@ -128,14 +156,16 @@ Item {
     }
     Panel {   // reboot aiming hint
         visible: hud.playing && game.rebootMode
-        anchors.horizontalCenter: parent.horizontalCenter; y: hud.compact ? 60 : 90; width: Math.min(520, parent.width - 40); height: hud.compact ? 52 : 64
-        Text { anchors.centerIn: parent; width: parent.width - 24; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter; color: "white"; font.pixelSize: 16 * hud.k
+        anchors.horizontalCenter: parent.horizontalCenter; y: topBar.y + topBar.height + 8
+        width: Math.min(560, parent.width - 40)
+        height: Math.max(hud.compact ? 48 : 56, rebootHintTxt.implicitHeight + 20); clip: true
+        Text { id: rebootHintTxt; anchors.centerIn: parent; width: parent.width - 24; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter; color: "white"; font.pixelSize: 15 * hud.k
                text: Strings.t("rebootHint") + (game ? "  (" + game.rebootTargetsCount() + ")" : "") }
     }
 
     // ---- build bar (socket selected) ------------------------------------------------------------------
     // free width at the bottom-left, next to the wave card / reboot panel
-    readonly property real leftPanelMax: parent.width - (playing && game.phase === "build" ? waveCard.width : 190) - 24
+    readonly property real leftPanelMax: parent.width - (playing && game.phase === "build" ? waveCard.width : rebootPanel.width) - 24
     Panel {
         visible: hud.playing && game.selectedSocket !== "" && game.selectedTower === 0
         x: 8; anchors.bottom: parent.bottom; anchors.bottomMargin: 8
@@ -205,8 +235,10 @@ Item {
     // ---- hint when nothing is selected ----------------------------------------------------------------------
     Panel {
         visible: hud.playing && game.selectedSocket === "" && game.selectedTower === 0 && !game.rebootMode && !game.quarantineMode && game.wave <= 1 && game.phase === "build"
-        x: 8; anchors.bottom: parent.bottom; anchors.bottomMargin: 8; width: Math.min(380, hud.leftPanelMax); height: hud.compact ? 44 : 56
-        Text { anchors.centerIn: parent; width: parent.width - 16; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter; text: Strings.t("placeHere"); color: "white"; font.pixelSize: 17 * hud.k }
+        x: 8; anchors.bottom: parent.bottom; anchors.bottomMargin: 8
+        width: Math.min(400, hud.leftPanelMax); height: Math.max(hud.compact ? 44 : 52, placeHint.implicitHeight + 20); clip: true
+        Text { id: placeHint; anchors.centerIn: parent; width: parent.width - 20; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter
+               text: Strings.t("placeHere"); color: "white"; font.pixelSize: 15 * hud.k }
     }
 
     // ---- toasts -------------------------------------------------------------------------------------------------
