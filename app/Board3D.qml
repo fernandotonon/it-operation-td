@@ -17,6 +17,18 @@ Item {
     property string selectedSocket: ""
     property int selectedTower: 0
     property string previewType: ""          // armed tower type -> range ring at the selected socket
+    // Current engagement range in metres for the selected / previewed tower. Written every
+    // sync() so upgrades (which mutate tower.level in place) always resize the ring.
+    property real liveRange: 0
+    onSelectedTowerChanged: refreshLiveRange()
+    onPreviewTypeChanged: refreshLiveRange()
+    function refreshLiveRange() {
+        var t = sim && selectedTower ? sim.towerById(selectedTower) : null
+        var type = t ? t.type : previewType
+        var level = t ? t.level : 0
+        var def = type && Towers.towers[type] ? Towers.towers[type].levels[level] : null
+        liveRange = def ? def.range : 0
+    }
     property var rebootCursor: null           // { x, z } while aiming the Emergency Reboot
     property var buildCursor: null
     property bool cursorValid: false
@@ -226,22 +238,16 @@ Item {
             Box3D { width: 100; depth: 100; height: 5; y: 4; color: board.buildCursor && !board.cursorValid ? "#f27761" : board.sectorAccent; opacity: 0.7; lighting: 0; showEdges: false; castsShadows: false }
         }
         // ---- range preview ring -----------------------------------------------------------------
-        // Matches what players actually see get hit:
-        //   • acquisition uses center distance <= range + enemy.radius (Sim.inRange)
-        //   • splash towers also damage out to ~range + splash around the impact
-        //   • homing pulses keep tracking for a short travel, so a small lead pad is included
-        // #Cylinder diameter is 100 → scale = (metres * 100) / 50 = metres * 2
+        // Exact acquisition reach from Sim.inRange: center distance <= range + enemy.radius.
+        // Uses board.liveRange (refreshed in sync) so upgrades resize the ring immediately.
+        // #Cylinder diameter is 100 → scale = metres * 2
         Node {
             id: rangeRing
             readonly property var sock: board.socketById(board.selectedSocket) || board.buildCursor
             readonly property var tower: board.sim && board.selectedTower ? board.sim.towerById(board.selectedTower) : null
             readonly property string ttype: tower ? tower.type : board.previewType
-            readonly property var lvl: ttype && Towers.towers[ttype] ? Towers.towers[ttype].levels[tower ? tower.level : 0] : null
-            readonly property real baseRange: lvl ? lvl.range : 0
-            readonly property real splash: lvl && lvl.splash ? lvl.splash : 0
-            readonly property real bodyPad: 0.5    // typical enemy.radius used by Sim.inRange
-            readonly property real leadPad: splash > 0 ? 0 : 0.7  // homing pulse travel while the target keeps moving
-            readonly property real radius: baseRange > 0 ? baseRange + splash + bodyPad + leadPad : 0
+            readonly property real bodyPad: 0.35
+            readonly property real radius: board.liveRange > 0 ? board.liveRange + bodyPad : 0
             readonly property real r: Math.max(radius, 0.05) * 100
             readonly property real cylScale: radius * 2
             visible: radius > 0 && (tower || sock)
@@ -392,6 +398,7 @@ Item {
         enemyCount = count
         // towers
         var tseen = {}, occ = {}
+        var selectedT = null
         for (var k = 0; k < S.towers.length; k++) {
             var t = S.towers[k]
             var tv = towerVis[t.id]
@@ -406,7 +413,15 @@ Item {
             tv.simTime = now
             tv.reducedFx = reducedFx
             if (t.target) tv.aim = t.aim
+            if (selectedTower === t.id) selectedT = t
             tseen[t.id] = true; occ[t.socket] = true
+        }
+        // Keep the range ring in sync with the selected tower's current level (or preview).
+        if (selectedT) {
+            var rangeDef = Towers.towers[selectedT.type].levels[selectedT.level]
+            liveRange = rangeDef ? rangeDef.range : 0
+        } else {
+            refreshLiveRange()
         }
         for (var tid in towerVis) if (!tseen[tid]) { towerVis[tid].destroy(); delete towerVis[tid] }
         // Hide suggested pads covered by towers built on nearby floor tiles as well.

@@ -232,13 +232,21 @@ FocusScope {
     property real announcementUntil: 0
     property real bossHealth: 0
     property real bossMaxHealth: 0
+    // Drop any in-progress aim (quarantine / reboot) without spending the ability.
+    function cancelPowerupAim() {
+        if (!quarantineMode && !rebootMode) return
+        quarantineMode = false; board.quarantineCursor = null
+        rebootMode = false; board.rebootCursor = null
+    }
     function toggleQuarantine() {
-        if (quarantineMode) { quarantineMode = false; board.quarantineCursor = null; return }
+        if (quarantineMode) { cancelPowerupAim(); return }
         if (phase !== "wave" || quarantineLeft > 0) return
         clearSelection(); rebootMode = false; board.rebootCursor = null
         quarantineMode = true; board.quarantineCursor = { x: 0, z: 0 }
     }
     function castQuarantine(x, z) {
+        // Wave already ended while aiming: drop the cursor instead of eating the tap.
+        if (phase !== "wave") { cancelPowerupAim(); return }
         var result = sim.quarantine(x, z)
         if (!result.ok) return
         quarantineMode = false; board.quarantineCursor = null
@@ -285,7 +293,12 @@ FocusScope {
             case "disable": board.spawnFx("alarm", e.x, e.z, "#e63946", 1.0); audio.play("alarm"); break
             case "rebootDone": board.spawnFx("rebootRing", e.x, e.z, "#3fd07a", Tuning.tuning.reboot.radius); audio.play("upgrade"); break
             case "support": break
-            case "waveClear": toast(Strings.t("wave") + " " + e.wave + " ✔  +" + e.bonus); break
+            case "waveClear":
+                // Quarantine only works during a wave — cancel leftover aim so build-phase
+                // taps aren't swallowed (and reboot aim is cleared for the same reason).
+                cancelPowerupAim()
+                toast(Strings.t("wave") + " " + e.wave + " ✔  +" + e.bonus)
+                break
             case "bossSplit": board.spawnFx("burst", e.x, e.z, "#f2c02f", 1.6); audio.play("alarm"); break
             }
         }
@@ -419,7 +432,7 @@ FocusScope {
     EndOverlay { anchors.fill: parent; game: game; visible: game.screen === "won" || game.screen === "lost" }
 
     Keys.onPressed: function (event) {
-        if (event.key === Qt.Key_Escape) { if (quarantineMode) toggleQuarantine(); else if (rebootMode) toggleRebootMode(); else if (selectedSocket || selectedTower) clearSelection(); else if (screen === "playing" || screen === "paused") togglePause(); event.accepted = true }
+        if (event.key === Qt.Key_Escape) { if (quarantineMode || rebootMode) cancelPowerupAim(); else if (selectedSocket || selectedTower) clearSelection(); else if (screen === "playing" || screen === "paused") togglePause(); event.accepted = true }
         else if (event.key === Qt.Key_Space) { if (screen === "playing" && phase === "build") requestStartWave(); event.accepted = true }
         else if (event.key === Qt.Key_P) { if (screen === "playing" || screen === "paused") togglePause(); event.accepted = true }
         else if (event.key === Qt.Key_F) { speed = speed === 1 ? 2 : 1; event.accepted = true }
